@@ -3,18 +3,11 @@
 import argparse
 import hashlib
 import json
-import math
 import os
 import time
 from pathlib import Path
 
-from benchmarks.local_models import (
-    DEFAULT_MODEL_DIR,
-    ModelExecutionError,
-    llama_embeddings,
-    llama_server,
-    resource_samples,
-)
+from benchmarks.local_models import resource_samples
 from benchmarks.metrics import (
     abstention_metrics,
     approved_dataset,
@@ -22,7 +15,14 @@ from benchmarks.metrics import (
     retrieval_metrics,
     score_separation,
 )
+from vigilant.local_models import (
+    DEFAULT_MODEL_DIR,
+    ModelExecutionError,
+    llama_embeddings,
+    llama_server,
+)
 from vigilant.markdown_docs import Section, extract_sections
+from vigilant.retrieval import cosine
 
 BENCHMARK_DIR = Path(__file__).parent
 DATASET_DIR = BENCHMARK_DIR / "dataset"
@@ -69,12 +69,6 @@ def embedding_inputs(cases: list[dict], sections: list[Section]) -> dict:
         "sections": [section.content for section in sections],
         **{mode: [query_text(case, mode) for case in cases] for mode in QUERY_MODES},
     }
-
-
-def cosine(left: list[float], right: list[float]) -> float:
-    dot = sum(a * b for a, b in zip(left, right))
-    norm = math.sqrt(sum(a * a for a in left)) * math.sqrt(sum(b * b for b in right))
-    return dot / norm if norm else 0.0
 
 
 def rank_sections(
