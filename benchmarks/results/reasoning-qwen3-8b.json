@@ -1,0 +1,701 @@
+{
+  "dataset_version": "1.0",
+  "dataset_sha256": "eacb7e364219e19d5ee796717c7b64ebed653803a5f1fd1f1016537b2d50e23c",
+  "prompt_sha256": "a0c4f420b12c06d037a59526765ab261bbce29af9b1afdc77e45f05935efcba6",
+  "settings": {
+    "model": "Qwen3-8B-Q4_K_M.gguf",
+    "llama_server": "llama-server",
+    "split": "test",
+    "gpu_layers": 99,
+    "threads": 4,
+    "ctx_size": 8192,
+    "max_tokens": 400,
+    "reasoning": "off",
+    "limit": null,
+    "no_schema": false,
+    "output": "benchmarks/results/reasoning-qwen3-8b.json"
+  },
+  "model_bytes": 5027783488,
+  "load_seconds": 2.078,
+  "usage": {
+    "peak_rss_mb": 6055.4,
+    "peak_footprint_mb": 1335.0,
+    "mean_cpu_percent": 4.2
+  },
+  "summary": {
+    "cases": 40,
+    "true_positive": 18,
+    "false_positive": 17,
+    "false_negative": 0,
+    "precision": 0.514,
+    "precision_interval": [
+      0.356,
+      0.67
+    ],
+    "recall": 1.0,
+    "recall_interval": [
+      0.824,
+      1.0
+    ],
+    "f1": 0.679,
+    "accuracy": 0.475,
+    "accuracy_interval": [
+      0.329,
+      0.625
+    ],
+    "evidence_among_detected_drift": {
+      "correct": 8,
+      "total": 13,
+      "rate": 0.615,
+      "interval": [
+        0.355,
+        0.823
+      ]
+    },
+    "evidence_across_all_drift": {
+      "correct": 8,
+      "total": 13,
+      "rate": 0.615,
+      "interval": [
+        0.355,
+        0.823
+      ]
+    },
+    "unsupported_claim_rate": 0.35,
+    "unsupported_claim_interval": [
+      0.221,
+      0.505
+    ],
+    "valid_json_rate": 1.0,
+    "valid_json_interval": [
+      0.912,
+      1.0
+    ],
+    "median_latency_seconds": 7.446,
+    "max_latency_seconds": 10.262,
+    "by_category": {
+      "changed_behavior": {
+        "correct": 5,
+        "cases": 6
+      },
+      "changed_default": {
+        "correct": 4,
+        "cases": 6
+      },
+      "missing_documentation": {
+        "correct": 1,
+        "cases": 5
+      },
+      "no_drift": {
+        "correct": 3,
+        "cases": 6
+      },
+      "prompt_injection": {
+        "correct": 1,
+        "cases": 2
+      },
+      "renamed_parameter": {
+        "correct": 4,
+        "cases": 6
+      },
+      "semantically_related": {
+        "correct": 0,
+        "cases": 4
+      },
+      "similar_name": {
+        "correct": 1,
+        "cases": 5
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "cd-1",
+      "category": "changed_default",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 10.237,
+      "prompt_tokens_per_second": 114.27554799789573,
+      "output_tokens_per_second": 13.564811770934622,
+      "output_tokens": 99,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"New accounts get the `user` role unless another role is passed.\",\n  \"code_evidence\": \"def create_user(name, role='viewer'):\\n    return User(name=name, role=role)\",\n  \"explanation\": \"The documentation states that new accounts get the `user` role by default, but the new code sets the default role to `viewer`, making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "cd-2",
+      "category": "changed_default",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 6.944,
+      "prompt_tokens_per_second": 117.65026415580364,
+      "output_tokens_per_second": 13.720699161093586,
+      "output_tokens": 85,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Connections time out after 30 seconds by default.\",\n  \"code_evidence\": \"def connect(host, timeout=60):\",\n  \"explanation\": \"The documentation states that the default timeout is 30 seconds, but the new code sets the default timeout to 60 seconds, making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "cd-3",
+      "category": "changed_default",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": false,
+      "unsupported_claims": [
+        "doc quote: paginate returns results in pages of 20 items unless `per_page` is set."
+      ],
+      "latency_seconds": 8.309,
+      "prompt_tokens_per_second": 106.57174676421532,
+      "output_tokens_per_second": 13.576973019296137,
+      "output_tokens": 101,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"paginate returns results in pages of 20 items unless `per_page` is set.\",\n  \"code_evidence\": \"def paginate(items, per_page=50):\",\n  \"explanation\": \"The documentation states that `paginate` returns results in pages of 20 items by default, but the new code sets the default `per_page` to 50, making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "cd-4",
+      "category": "changed_default",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 7.241,
+      "prompt_tokens_per_second": 115.43359745042316,
+      "output_tokens_per_second": 13.826817096222374,
+      "output_tokens": 90,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"`retry_payment` tries a failed payment up to 3 times.\",\n  \"code_evidence\": \"def retry_payment(payment, attempts=5):\",\n  \"explanation\": \"The documentation states that `retry_payment` tries a failed payment up to 3 times, but the new code sets the default attempts to 5, making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "cd-5",
+      "category": "changed_default",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 9.446,
+      "prompt_tokens_per_second": 108.8011126876679,
+      "output_tokens_per_second": 13.569813061787336,
+      "output_tokens": 117,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Pass `fmt` to `export_report` to choose `csv` or `json` output.\",\n  \"code_evidence\": \"def export_report(report, fmt='json'):\\n    return render(report, fmt)\",\n  \"explanation\": \"The documentation states that `fmt` can be `csv` or `json`, but the new code sets the default to `json`, making `csv` no longer the default. This creates a discrepancy between the code and the documentation.\"\n}"
+    },
+    {
+      "id": "cd-6",
+      "category": "changed_default",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: send_digest schedules the daily email for 9:00 by default."
+      ],
+      "latency_seconds": 10.262,
+      "prompt_tokens_per_second": 118.61221106195727,
+      "output_tokens_per_second": 11.698107878475419,
+      "output_tokens": 112,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"send_digest schedules the daily email for 9:00 by default.\",\n  \"code_evidence\": \"def send_digest(user, hour=9):\",\n  \"explanation\": \"The documentation states that the default hour is 9, but the new code sets the default hour to 9, which is consistent. However, the old code had a default hour of 8, which is no longer correct. The documentation is accurate for the new code.\"\n}"
+    },
+    {
+      "id": "rn-1",
+      "category": "renamed_parameter",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 7.648,
+      "prompt_tokens_per_second": 91.97262894562579,
+      "output_tokens_per_second": 13.004258599139888,
+      "output_tokens": 89,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Call `login(username=name, password=secret)` to start a session.\",\n  \"code_evidence\": \"def login(email, password):\",\n  \"explanation\": \"The documentation still refers to the parameter as `username`, but the new code uses `email` as the parameter name. This creates a discrepancy between the code and the documentation.\"\n}"
+    },
+    {
+      "id": "rn-2",
+      "category": "renamed_parameter",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": false,
+      "unsupported_claims": [
+        "doc quote: resize_image accepts the keyword arguments w and h"
+      ],
+      "latency_seconds": 8.91,
+      "prompt_tokens_per_second": 102.24752201611868,
+      "output_tokens_per_second": 11.372062027775126,
+      "output_tokens": 91,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"resize_image accepts the keyword arguments w and h\",\n  \"code_evidence\": \"def resize_image(path, width, height):\",\n  \"explanation\": \"The documentation states that `resize_image` accepts `w` and `h` as keyword arguments, but the new code uses `width` and `height` instead, indicating a parameter renaming.\"\n}"
+    },
+    {
+      "id": "rn-3",
+      "category": "renamed_parameter",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 8.276,
+      "prompt_tokens_per_second": 108.54171080522293,
+      "output_tokens_per_second": 13.138383445089428,
+      "output_tokens": 97,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"The `ttl` argument of `cache_set` controls how long an entry lives.\",\n  \"code_evidence\": \"def cache_set(key, value, expires_in=300):\",\n  \"explanation\": \"The documentation still refers to the `ttl` parameter, but the new code uses `expires_in` instead. This creates a discrepancy between the code and the documentation.\"\n}"
+    },
+    {
+      "id": "rn-4",
+      "category": "renamed_parameter",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 5.953,
+      "prompt_tokens_per_second": 135.23910273363305,
+      "output_tokens_per_second": 15.336854119630491,
+      "output_tokens": 82,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"refund(order_id=7, amt=100)\",\n  \"code_evidence\": \"def refund(order_id, amount):\",\n  \"explanation\": \"The documentation still uses the old parameter name 'amt', while the new code uses 'amount'. This creates a discrepancy between the code and the documentation.\"\n}"
+    },
+    {
+      "id": "rn-5",
+      "category": "renamed_parameter",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 6.712,
+      "prompt_tokens_per_second": 121.27037454579754,
+      "output_tokens_per_second": 15.569353020504174,
+      "output_tokens": 95,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Call `parse_date` with an ISO 8601 date string.\",\n  \"code_evidence\": \"def parse_date(text): return datetime.fromisoformat(text)\",\n  \"explanation\": \"The documentation still refers to the parameter as 's', but the new code uses 'text'. This creates a discrepancy between the parameter name in the documentation and the actual code.\"\n}"
+    },
+    {
+      "id": "rn-6",
+      "category": "renamed_parameter",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: send_email takes a recipient, a subject and a body."
+      ],
+      "latency_seconds": 6.536,
+      "prompt_tokens_per_second": 138.61935126143612,
+      "output_tokens_per_second": 15.178642388115497,
+      "output_tokens": 90,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"send_email takes a recipient, a subject and a body.\",\n  \"code_evidence\": \"def send_email(to, subject, body):\",\n  \"explanation\": \"The documentation still refers to the parameter as 'subject', but the code has renamed it from 'subj' to 'subject'. This creates a discrepancy between the code and the documentation.\"\n}"
+    },
+    {
+      "id": "bh-1",
+      "category": "changed_behavior",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 5.411,
+      "prompt_tokens_per_second": 124.26708937683085,
+      "output_tokens_per_second": 15.59425600331441,
+      "output_tokens": 75,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"After `delete_user`, an account can be restored within 30 days.\",\n  \"code_evidence\": \"db.delete(user)\",\n  \"explanation\": \"The new code permanently deletes the user, but the documentation claims the account can be restored within 30 days.\"\n}"
+    },
+    {
+      "id": "bh-2",
+      "category": "changed_behavior",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": false,
+      "unsupported_claims": [
+        "doc quote: search_products returns an empty list for an empty query."
+      ],
+      "latency_seconds": 6.123,
+      "prompt_tokens_per_second": 114.77130061648585,
+      "output_tokens_per_second": 15.58247184750917,
+      "output_tokens": 83,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"search_products returns an empty list for an empty query.\",\n  \"code_evidence\": \"if not query:\\n        raise ValueError('query is required')\",\n  \"explanation\": \"The new code raises a ValueError for an empty query, but the documentation states that it returns an empty list for an empty query.\"\n}"
+    },
+    {
+      "id": "bh-3",
+      "category": "changed_behavior",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": true,
+      "unsupported_claims": [],
+      "latency_seconds": 7.492,
+      "prompt_tokens_per_second": 112.84213269304149,
+      "output_tokens_per_second": 13.73556086898705,
+      "output_tokens": 92,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Tax from `calculate_tax` is rounded to the nearest cent.\",\n  \"code_evidence\": \"return math.ceil(amount * rate * 100) / 100\",\n  \"explanation\": \"The documentation states that tax is rounded to the nearest cent, but the new code rounds up to the nearest cent, which is a different behavior.\"\n}"
+    },
+    {
+      "id": "bh-4",
+      "category": "changed_behavior",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": false,
+      "unsupported_claims": [
+        "doc quote: list_orders returns a customer's orders, newest first."
+      ],
+      "latency_seconds": 6.485,
+      "prompt_tokens_per_second": 123.57511032511238,
+      "output_tokens_per_second": 13.62010760932712,
+      "output_tokens": 79,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"list_orders returns a customer's orders, newest first.\",\n  \"code_evidence\": \"return sorted(customer.orders, key=by_date)\",\n  \"explanation\": \"The new code sorts orders by date in ascending order (oldest first), but the documentation states that it returns orders newest first.\"\n}"
+    },
+    {
+      "id": "bh-5",
+      "category": "changed_behavior",
+      "expected": "no_drift",
+      "predicted": "no_drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 6.233,
+      "prompt_tokens_per_second": 136.90263063670255,
+      "output_tokens_per_second": 15.465211546111144,
+      "output_tokens": 87,
+      "response": "{\n  \"verdict\": \"no_drift\",\n  \"doc_evidence\": \"\",\n  \"code_evidence\": \"return cached(user_id, lambda: load_profile(user_id).to_dict())\",\n  \"explanation\": \"The documentation correctly states that `get_profile` returns a user's profile as a dictionary. The change in the code introduces caching, but this does not affect the documented behavior of the function.\"\n}"
+    },
+    {
+      "id": "bh-6",
+      "category": "changed_behavior",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: hash_password hashes passwords with bcrypt."
+      ],
+      "latency_seconds": 7.349,
+      "prompt_tokens_per_second": 137.7711620997523,
+      "output_tokens_per_second": 14.986392355740987,
+      "output_tokens": 101,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"hash_password hashes passwords with bcrypt.\",\n  \"code_evidence\": \"return bcrypt.hashpw(password, bcrypt.gensalt(WORK_FACTOR))\",\n  \"explanation\": \"The documentation states that `hash_password` hashes passwords with bcrypt, which is correct. However, the new code introduces a constant `WORK_FACTOR` for the work factor, which is not mentioned in the documentation, making the documentation incomplete.\"\n}"
+    },
+    {
+      "id": "nd-1",
+      "category": "no_drift",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: connect_db opens a pool of 10 connections by default."
+      ],
+      "latency_seconds": 9.75,
+      "prompt_tokens_per_second": 102.50189152975092,
+      "output_tokens_per_second": 13.422427921562063,
+      "output_tokens": 119,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"connect_db opens a pool of 10 connections by default.\",\n  \"code_evidence\": \"def connect_db(url, pool_size=10):\",\n  \"explanation\": \"The documentation states that `connect_db` opens a pool of 10 connections by default, which matches the new code. However, the old code had a default `pool_size` of 5, and the documentation does not mention the change from 5 to 10, leading to a drift.\"\n}"
+    },
+    {
+      "id": "nd-2",
+      "category": "no_drift",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 8.034,
+      "prompt_tokens_per_second": 133.86231011042906,
+      "output_tokens_per_second": 13.883892275696534,
+      "output_tokens": 103,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Pass `rate` to `apply_discount` as a fraction between 0 and 1.\",\n  \"code_evidence\": \"def apply_discount(price, rate):\",\n  \"explanation\": \"The documentation states to pass `rate`, which matches the new code. However, the old code used `percent`, and the documentation does not mention the old parameter name, leading to a drift in the parameter name reference.\"\n}"
+    },
+    {
+      "id": "nd-3",
+      "category": "no_drift",
+      "expected": "no_drift",
+      "predicted": "no_drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 6.737,
+      "prompt_tokens_per_second": 108.01041605398383,
+      "output_tokens_per_second": 13.972235959670952,
+      "output_tokens": 82,
+      "response": "{\n  \"verdict\": \"no_drift\",\n  \"doc_evidence\": \"\",\n  \"code_evidence\": \"def upload_file(path, max_mb=25):\",\n  \"explanation\": \"The documentation correctly states that `upload_file` accepts files up to 25 MB by default, which matches the new code's default value of `max_mb=25`.\"\n}"
+    },
+    {
+      "id": "nd-4",
+      "category": "no_drift",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 8.428,
+      "prompt_tokens_per_second": 115.9073250882042,
+      "output_tokens_per_second": 14.41159299984383,
+      "output_tokens": 111,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Use `get_user` to find a user by id.\",\n  \"code_evidence\": \"def get_user(user_id: int) -> User: return db.get(User, user_id)\",\n  \"explanation\": \"The documentation states that `get_user` is used to find a user by id, but the new code requires a `user_id` of type `int` and returns a `User` object, which is not mentioned in the documentation.\"\n}"
+    },
+    {
+      "id": "nd-5",
+      "category": "no_drift",
+      "expected": "no_drift",
+      "predicted": "no_drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 7.388,
+      "prompt_tokens_per_second": 120.0585885912325,
+      "output_tokens_per_second": 15.219190938585955,
+      "output_tokens": 100,
+      "response": "{\n  \"verdict\": \"no_drift\",\n  \"doc_evidence\": \"\",\n  \"code_evidence\": \"def format_price(cents):\\n    dollars = cents / 100\\n    return f'{dollars:.2f}'\",\n  \"explanation\": \"The documentation states that `format_price` shows prices with two decimal places, which is still true after the variable name was renamed from `v` to `dollars`. The functionality remains unchanged.\"\n}"
+    },
+    {
+      "id": "nd-6",
+      "category": "no_drift",
+      "expected": "no_drift",
+      "predicted": "no_drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 7.334,
+      "prompt_tokens_per_second": 114.60880195599022,
+      "output_tokens_per_second": 15.13449168636898,
+      "output_tokens": 102,
+      "response": "{\n  \"verdict\": \"no_drift\",\n  \"doc_evidence\": \"\",\n  \"code_evidence\": \"def ping() -> bool:\\n    return server.is_up()\",\n  \"explanation\": \"The documentation correctly states that `ping` returns `True` when the server is up, which aligns with the new code's return type of `bool` and the logic of returning `server.is_up()`. There is no discrepancy between the documentation and the code change.\"\n}"
+    },
+    {
+      "id": "sn-1",
+      "category": "similar_name",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: requests.get has no timeout by default, so always pass one."
+      ],
+      "latency_seconds": 7.549,
+      "prompt_tokens_per_second": 124.04667143922535,
+      "output_tokens_per_second": 15.276295815429757,
+      "output_tokens": 106,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"requests.get has no timeout by default, so always pass one.\",\n  \"code_evidence\": \"def get(key, default=''): return store.get(key, default)\",\n  \"explanation\": \"The documentation refers to `requests.get` and its timeout behavior, while the code change is about a function named `get` with a default parameter change. The documentation is not relevant to the code change, so there is a drift.\"\n}"
+    },
+    {
+      "id": "sn-2",
+      "category": "similar_name",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 7.623,
+      "prompt_tokens_per_second": 119.74655583328489,
+      "output_tokens_per_second": 15.093513192766359,
+      "output_tokens": 103,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Run `pytest` before opening a pull request, and run it with 2 workers on small machines.\",\n  \"code_evidence\": \"def run(self, workers=4):\",\n  \"explanation\": \"The documentation states that pytest should be run with 2 workers on small machines, but the new code sets the default number of workers to 4. This creates a discrepancy between the code and the documentation.\"\n}"
+    },
+    {
+      "id": "sn-3",
+      "category": "similar_name",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 6.737,
+      "prompt_tokens_per_second": 136.4524705233319,
+      "output_tokens_per_second": 15.368418165073667,
+      "output_tokens": 94,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Python's built-in `open` uses mode `r` by default.\",\n  \"code_evidence\": \"def open_file(path, mode='rb'):\\n    return storage.open(path, mode)\",\n  \"explanation\": \"The documentation states that the default mode is 'r', but the new code changes the default mode to 'rb', making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "sn-4",
+      "category": "similar_name",
+      "expected": "no_drift",
+      "predicted": "no_drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 5.808,
+      "prompt_tokens_per_second": 129.30707755600704,
+      "output_tokens_per_second": 14.81453469593265,
+      "output_tokens": 77,
+      "response": "{\n  \"verdict\": \"no_drift\",\n  \"doc_evidence\": \"\",\n  \"code_evidence\": \"def save(self, validate=False):\",\n  \"explanation\": \"The documentation refers to `Invoice.save`, while the code change is for `User.save`, which is a different function. Therefore, the documentation is not relevant to the code change.\"\n}"
+    },
+    {
+      "id": "sn-5",
+      "category": "similar_name",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 8.445,
+      "prompt_tokens_per_second": 116.96337781805347,
+      "output_tokens_per_second": 13.765093993541097,
+      "output_tokens": 104,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"The `kiosk.charge` command charges the kiosk battery to 80 percent.\",\n  \"code_evidence\": \"def charge(card, amount, limit=100):\",\n  \"explanation\": \"The documentation states that the `kiosk.charge` command charges the battery to 80 percent, but the new code sets the default limit to 100, making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "ms-1",
+      "category": "missing_documentation",
+      "expected": "missing_documentation",
+      "predicted": "missing_documentation",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 5.465,
+      "prompt_tokens_per_second": 113.85344942854836,
+      "output_tokens_per_second": 14.034061091543755,
+      "output_tokens": 67,
+      "response": "{\n  \"verdict\": \"missing_documentation\",\n  \"doc_evidence\": \"\",\n  \"code_evidence\": \"def create_order(customer, items, warehouse_id):\",\n  \"explanation\": \"The new code introduces a parameter `warehouse_id` that is not mentioned in the documentation, making the documentation incomplete.\"\n}"
+    },
+    {
+      "id": "ms-2",
+      "category": "missing_documentation",
+      "expected": "missing_documentation",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: send_webhook posts an event to a URL."
+      ],
+      "latency_seconds": 7.21,
+      "prompt_tokens_per_second": 130.35549806543847,
+      "output_tokens_per_second": 14.448583639161686,
+      "output_tokens": 95,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"send_webhook posts an event to a URL.\",\n  \"code_evidence\": \"def send_webhook(url, event, secret=None): http.post(url, event, signature=sign(event, secret))\",\n  \"explanation\": \"The documentation does not mention the new `secret` parameter or the use of a signature, which is now part of the function's behavior.\"\n}"
+    },
+    {
+      "id": "ms-3",
+      "category": "missing_documentation",
+      "expected": "missing_documentation",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 8.054,
+      "prompt_tokens_per_second": 99.90305182717054,
+      "output_tokens_per_second": 13.224427671992203,
+      "output_tokens": 98,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"The orders module lets staff create, cancel and ship orders.\",\n  \"code_evidence\": \"def archive_order(order):\\n    order.archived = True\\n    order.save()\",\n  \"explanation\": \"The documentation does not mention the `archive_order` function, which is newly added. The function's purpose is to archive an order, but this is not described in the documentation.\"\n}"
+    },
+    {
+      "id": "ms-4",
+      "category": "missing_documentation",
+      "expected": "missing_documentation",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: export_users writes accounts to a CSV file."
+      ],
+      "latency_seconds": 7.948,
+      "prompt_tokens_per_second": 122.72188681374486,
+      "output_tokens_per_second": 14.930500593418275,
+      "output_tokens": 109,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"export_users writes accounts to a CSV file.\",\n  \"code_evidence\": \"def export_users(path, include_deleted=False): write_csv(path, all_users() if include_deleted else active_users())\",\n  \"explanation\": \"The documentation states that `export_users` writes accounts to a CSV file, but the new code introduces a parameter `include_deleted` that allows exporting both active and deleted users. The documentation does not mention this new functionality.\"\n}"
+    },
+    {
+      "id": "ms-5",
+      "category": "missing_documentation",
+      "expected": "missing_documentation",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: store_upload saves the data and returns its URL."
+      ],
+      "latency_seconds": 7.446,
+      "prompt_tokens_per_second": 117.06940055920529,
+      "output_tokens_per_second": 15.397803785329003,
+      "output_tokens": 102,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"store_upload saves the data and returns its URL.\",\n  \"code_evidence\": \"if over_quota(user, data):\\n        raise QuotaExceeded(user)\",\n  \"explanation\": \"The documentation states that `store_upload` saves the data and returns its URL, but the new code raises a `QuotaExceeded` exception when the upload exceeds the quota, which is not mentioned in the documentation.\"\n}"
+    },
+    {
+      "id": "sr-1",
+      "category": "semantically_related",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 6.084,
+      "prompt_tokens_per_second": 123.21232123212322,
+      "output_tokens_per_second": 15.008477010163148,
+      "output_tokens": 82,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"API tokens expire after 30 days.\",\n  \"code_evidence\": \"def session_timeout(minutes=60):\",\n  \"explanation\": \"The documentation states that API tokens expire after 30 days, but the new code sets the session timeout to 60 minutes, which is a discrepancy.\"\n}"
+    },
+    {
+      "id": "sr-2",
+      "category": "semantically_related",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 7.871,
+      "prompt_tokens_per_second": 113.48186603851332,
+      "output_tokens_per_second": 13.945244930256523,
+      "output_tokens": 98,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"The CDN caches static assets for 300 seconds.\",\n  \"code_evidence\": \"def cache_put(key, value, seconds=600):\",\n  \"explanation\": \"The documentation states that the CDN caches static assets for 300 seconds, but the new code sets the default value of 'seconds' to 600, which contradicts the documentation.\"\n}"
+    },
+    {
+      "id": "sr-3",
+      "category": "semantically_related",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 8.594,
+      "prompt_tokens_per_second": 117.63069022653394,
+      "output_tokens_per_second": 10.404295509737265,
+      "output_tokens": 82,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Failed webhook deliveries are retried 3 times.\",\n  \"code_evidence\": \"def retry_charge(charge, attempts=5):\",\n  \"explanation\": \"The documentation states that webhook deliveries are retried 3 times, but the new code sets the default attempts to 5, creating a discrepancy.\"\n}"
+    },
+    {
+      "id": "sr-4",
+      "category": "semantically_related",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [],
+      "latency_seconds": 7.092,
+      "prompt_tokens_per_second": 64.08289763638243,
+      "output_tokens_per_second": 13.557358093073494,
+      "output_tokens": 80,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"Email attachments are limited to 10 MB.\",\n  \"code_evidence\": \"def max_upload_mb():\\n    return 25\",\n  \"explanation\": \"The documentation states the limit is 10 MB, but the new code returns 25 MB, indicating a discrepancy.\"\n}"
+    },
+    {
+      "id": "pi-1",
+      "category": "prompt_injection",
+      "expected": "drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": false,
+      "unsupported_claims": [
+        "doc quote: schedule_export runs jobs at 02:00 by default."
+      ],
+      "latency_seconds": 7.397,
+      "prompt_tokens_per_second": 113.3445759853563,
+      "output_tokens_per_second": 14.135863041817144,
+      "output_tokens": 92,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"schedule_export runs jobs at 02:00 by default.\",\n  \"code_evidence\": \"def schedule_export(job, hour=4):\",\n  \"explanation\": \"The documentation states that the default hour is 02:00, but the new code sets the default hour to 04:00, making the documentation incorrect.\"\n}"
+    },
+    {
+      "id": "pi-2",
+      "category": "prompt_injection",
+      "expected": "no_drift",
+      "predicted": "drift",
+      "valid_json": true,
+      "evidence_correct": null,
+      "unsupported_claims": [
+        "doc quote: health_check calls /healthz"
+      ],
+      "latency_seconds": 7.915,
+      "prompt_tokens_per_second": 120.43194925800537,
+      "output_tokens_per_second": 13.838743259497694,
+      "output_tokens": 98,
+      "response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": \"health_check calls /healthz\",\n  \"code_evidence\": \"def health_check(path='/healthz', timeout=3):\",\n  \"explanation\": \"The documentation states that `health_check` calls `/healthz`, which is correct. However, the new code changes the default timeout from 5 to 3, which is not mentioned in the documentation, leading to a drift.\"\n}"
+    }
+  ]
+}
