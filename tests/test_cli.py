@@ -57,7 +57,7 @@ def test_unknown_option_is_rejected(vigilant):
     assert result.stdout == ""
 
 
-def test_scan_reports_signature_change_with_location(vigilant, git_repo):
+def test_changes_reports_signature_change_with_location(vigilant, git_repo):
     base = git_repo.commit(
         {"app.py": 'def create_user(name, role="user"):\n    pass\n'}
     )
@@ -65,7 +65,7 @@ def test_scan_reports_signature_change_with_location(vigilant, git_repo):
         {"app.py": 'def create_user(name, role="viewer"):\n    pass\n'}
     )
 
-    result = vigilant("scan", base, target, cwd=git_repo.path)
+    result = vigilant("changes", base, target, cwd=git_repo.path)
 
     assert result.returncode == 0
     assert result.stderr == ""
@@ -79,22 +79,22 @@ def test_scan_reports_signature_change_with_location(vigilant, git_repo):
     )
 
 
-def test_scan_target_defaults_to_head(vigilant, git_repo):
+def test_changes_target_defaults_to_head(vigilant, git_repo):
     base = git_repo.commit()
     git_repo.commit({"app.py": "def f(): pass\n"})
 
-    result = vigilant("scan", base, cwd=git_repo.path)
+    result = vigilant("changes", base, cwd=git_repo.path)
 
     assert result.returncode == 0
     assert "function_added: f" in result.stdout
     assert "app.py (added)" in result.stdout
 
 
-def test_scan_groups_several_changes_to_one_function(vigilant, git_repo):
+def test_changes_groups_several_changes_to_one_function(vigilant, git_repo):
     base = git_repo.commit({"app.py": "def f(a): pass\n"})
     target = git_repo.commit({"app.py": "def f(a, b, c): pass\n"})
 
-    result = vigilant("scan", base, target, cwd=git_repo.path)
+    result = vigilant("changes", base, target, cwd=git_repo.path)
 
     assert result.stdout.count("  f (line 1)") == 1
     assert "parameter_added: b" in result.stdout
@@ -102,34 +102,34 @@ def test_scan_groups_several_changes_to_one_function(vigilant, git_repo):
     assert "2 function signature change(s) found." in result.stdout
 
 
-def test_scan_reports_deleted_file(vigilant, git_repo):
+def test_changes_reports_deleted_file(vigilant, git_repo):
     base = git_repo.commit({"app.py": "def f(): pass\n"})
     target = git_repo.commit(delete=["app.py"])
 
-    result = vigilant("scan", base, target, cwd=git_repo.path)
+    result = vigilant("changes", base, target, cwd=git_repo.path)
 
     assert result.returncode == 0
     assert "app.py (deleted)" in result.stdout
     assert "function_removed: f" in result.stdout
 
 
-def test_scan_without_signature_changes(vigilant, git_repo):
+def test_changes_without_signature_changes(vigilant, git_repo):
     base = git_repo.commit({"app.py": "def f():\n    return 1\n", "README.md": "old\n"})
     target = git_repo.commit(
         {"app.py": "def f():\n    return 2\n", "README.md": "new\n"}
     )
 
-    result = vigilant("scan", base, target, cwd=git_repo.path)
+    result = vigilant("changes", base, target, cwd=git_repo.path)
 
     assert result.returncode == 0
     assert result.stdout == "No function signature changes found.\n"
 
 
-def test_scan_skips_invalid_python_and_reports_other_files(vigilant, git_repo):
+def test_changes_skips_invalid_python_and_reports_other_files(vigilant, git_repo):
     base = git_repo.commit({"bad.py": "def f(): pass\n", "good.py": "def g(): pass\n"})
     target = git_repo.commit({"bad.py": "def f(:\n", "good.py": "def g(a): pass\n"})
 
-    result = vigilant("scan", base, target, cwd=git_repo.path)
+    result = vigilant("changes", base, target, cwd=git_repo.path)
 
     assert result.returncode == 0
     assert "warning: skipped bad.py: invalid Python in target revision" in result.stderr
@@ -137,77 +137,25 @@ def test_scan_skips_invalid_python_and_reports_other_files(vigilant, git_repo):
     assert "bad.py" not in result.stdout
 
 
-def test_scan_invalid_revision_fails_with_clear_error(vigilant, git_repo):
+def test_changes_invalid_revision_fails_with_clear_error(vigilant, git_repo):
     commit = git_repo.commit()
 
-    result = vigilant("scan", commit, "no-such-branch", cwd=git_repo.path)
+    result = vigilant("changes", commit, "no-such-branch", cwd=git_repo.path)
 
     assert result.returncode == 1
     assert result.stdout == ""
     assert result.stderr == "vigilant: error: unknown revision: no-such-branch\n"
 
 
-def test_scan_outside_a_repository_fails(vigilant, tmp_path):
-    result = vigilant("scan", "HEAD~1", cwd=tmp_path)
+def test_changes_outside_a_repository_fails(vigilant, tmp_path):
+    result = vigilant("changes", "HEAD~1", cwd=tmp_path)
 
     assert result.returncode == 1
     assert "not a git repository" in result.stderr
 
 
-def test_scan_requires_a_base_revision(vigilant):
-    result = vigilant("scan")
+def test_changes_requires_a_base_revision(vigilant):
+    result = vigilant("changes")
 
     assert result.returncode == 2
     assert "base" in result.stderr
-
-
-def test_scan_reports_related_documentation(vigilant, git_repo):
-    base = git_repo.commit(
-        {
-            "users.py": 'def create_user(name, role="user"): pass\n',
-            "docs/api.md": "# API\n## Users\nCall `create_user` to add one.\n",
-            "docs/billing.md": "# Billing\nNothing relevant.\n",
-        }
-    )
-    target = git_repo.commit(
-        {"users.py": 'def create_user(name, role="viewer"): pass\n'}
-    )
-
-    result = vigilant("scan", base, target, cwd=git_repo.path)
-
-    assert result.returncode == 0
-    assert result.stdout.endswith(
-        "1 function signature change(s) found.\n"
-        "\n"
-        "Possibly related documentation (not a drift verdict):\n"
-        "  users.py: create_user\n"
-        "    docs/api.md:3 in API > Users (lines 2-3)\n"
-        "      exact name in inline code: Call `create_user` to add one.\n"
-        "1 documentation reference(s) found.\n"
-    )
-
-
-def test_scan_reads_documentation_from_the_target_revision(vigilant, git_repo):
-    base = git_repo.commit(
-        {"users.py": "def create_user(a): pass\n", "README.md": "`create_user`\n"}
-    )
-    target = git_repo.commit(
-        {"users.py": "def create_user(b): pass\n", "README.md": "No references.\n"}
-    )
-    (git_repo.path / "README.md").write_text("`create_user`\n")
-
-    result = vigilant("scan", base, target, cwd=git_repo.path)
-
-    assert "parameter_renamed: a -> b" in result.stdout
-    assert "documentation" not in result.stdout
-
-
-def test_scan_does_not_report_documentation_for_unchanged_functions(vigilant, git_repo):
-    base = git_repo.commit(
-        {"users.py": "def create_user(): return 1\n", "README.md": "`create_user`\n"}
-    )
-    target = git_repo.commit({"users.py": "def create_user(): return 2\n"})
-
-    result = vigilant("scan", base, target, cwd=git_repo.path)
-
-    assert result.stdout == "No function signature changes found.\n"

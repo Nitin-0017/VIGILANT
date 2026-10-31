@@ -6,13 +6,7 @@ import json
 import time
 from pathlib import Path
 
-from benchmarks.local_models import (
-    DEFAULT_MODEL_DIR,
-    ModelExecutionError,
-    llama_server,
-    post_json,
-    resource_samples,
-)
+from benchmarks.local_models import resource_samples
 from benchmarks.metrics import (
     approved_dataset,
     classification_metrics,
@@ -21,6 +15,13 @@ from benchmarks.metrics import (
     parse_response,
     unsupported_claims,
     wilson_interval,
+)
+
+from vigilant.local_models import (
+    DEFAULT_MODEL_DIR,
+    ModelExecutionError,
+    llama_server,
+    post_json,
 )
 
 BENCHMARK_DIR = Path(__file__).parent

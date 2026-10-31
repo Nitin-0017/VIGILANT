@@ -72,6 +72,10 @@ The dataset's detected changes and documentation sections stand in for determini
 preprocessing (Git diff, AST and Markdown extraction). The baseline never feeds a model,
 and no model script imports it.
 
+`run_request_shape.py` compares reasoning request shapes on development data in
+`dataset/dev_cases.json`. That file is not part of the approved held-out dataset. The
+matcher lives in `deterministic_matcher.py`, outside the production package.
+
 ## Model execution failures
 
 A missing model, failed load, failed request or malformed server response raises
