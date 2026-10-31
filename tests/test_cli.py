@@ -159,3 +159,55 @@ def test_scan_requires_a_base_revision(vigilant):
 
     assert result.returncode == 2
     assert "base" in result.stderr
+
+
+def test_scan_reports_related_documentation(vigilant, git_repo):
+    base = git_repo.commit(
+        {
+            "users.py": 'def create_user(name, role="user"): pass\n',
+            "docs/api.md": "# API\n## Users\nCall `create_user` to add one.\n",
+            "docs/billing.md": "# Billing\nNothing relevant.\n",
+        }
+    )
+    target = git_repo.commit(
+        {"users.py": 'def create_user(name, role="viewer"): pass\n'}
+    )
+
+    result = vigilant("scan", base, target, cwd=git_repo.path)
+
+    assert result.returncode == 0
+    assert result.stdout.endswith(
+        "1 function signature change(s) found.\n"
+        "\n"
+        "Possibly related documentation (not a drift verdict):\n"
+        "  users.py: create_user\n"
+        "    docs/api.md:3 in API > Users (lines 2-3)\n"
+        "      exact name in inline code: Call `create_user` to add one.\n"
+        "1 documentation reference(s) found.\n"
+    )
+
+
+def test_scan_reads_documentation_from_the_target_revision(vigilant, git_repo):
+    base = git_repo.commit(
+        {"users.py": "def create_user(a): pass\n", "README.md": "`create_user`\n"}
+    )
+    target = git_repo.commit(
+        {"users.py": "def create_user(b): pass\n", "README.md": "No references.\n"}
+    )
+    (git_repo.path / "README.md").write_text("`create_user`\n")
+
+    result = vigilant("scan", base, target, cwd=git_repo.path)
+
+    assert "parameter_renamed: a -> b" in result.stdout
+    assert "documentation" not in result.stdout
+
+
+def test_scan_does_not_report_documentation_for_unchanged_functions(vigilant, git_repo):
+    base = git_repo.commit(
+        {"users.py": "def create_user(): return 1\n", "README.md": "`create_user`\n"}
+    )
+    target = git_repo.commit({"users.py": "def create_user(): return 2\n"})
+
+    result = vigilant("scan", base, target, cwd=git_repo.path)
+
+    assert result.stdout == "No function signature changes found.\n"

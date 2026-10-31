@@ -1,6 +1,11 @@
 import pytest
 
-from vigilant.git_diff import FileChange, GitError, changed_python_files
+from vigilant.git_diff import (
+    FileChange,
+    GitError,
+    changed_python_files,
+    markdown_files,
+)
 
 
 def test_added_file_has_only_new_source(git_repo):
@@ -97,3 +102,35 @@ def test_revision_is_never_interpreted_as_a_git_option(git_repo):
 def test_directory_outside_a_repository_raises_git_error(tmp_path):
     with pytest.raises(GitError, match="not a git repository"):
         changed_python_files(tmp_path, "HEAD~1", "HEAD")
+
+
+def test_markdown_files_are_read_from_the_requested_revision(git_repo):
+    old = git_repo.commit(
+        {"README.md": "old\n", "docs/guide.markdown": "guide\n", "app.py": "x = 1\n"}
+    )
+    git_repo.commit({"README.md": "new\n", "docs/extra.MD": "extra\n"})
+
+    assert markdown_files(git_repo.path, old) == [
+        ("README.md", b"old\n"),
+        ("docs/guide.markdown", b"guide\n"),
+    ]
+    assert markdown_files(git_repo.path, "HEAD") == [
+        ("README.md", b"new\n"),
+        ("docs/extra.MD", b"extra\n"),
+        ("docs/guide.markdown", b"guide\n"),
+    ]
+
+
+def test_markdown_files_ignore_uncommitted_changes_and_symlinks(git_repo):
+    (git_repo.path / "link.md").symlink_to("target.txt")
+    git_repo.commit({"README.md": "committed\n", "target.txt": "x\n"})
+    (git_repo.path / "README.md").write_text("uncommitted\n")
+
+    assert markdown_files(git_repo.path, "HEAD") == [("README.md", b"committed\n")]
+
+
+def test_markdown_files_invalid_revision_raises_clear_error(git_repo):
+    git_repo.commit()
+
+    with pytest.raises(GitError, match="unknown revision: missing"):
+        markdown_files(git_repo.path, "missing")
