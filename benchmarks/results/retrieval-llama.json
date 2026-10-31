@@ -1,0 +1,2433 @@
+{
+  "dataset_version": "1.0",
+  "dataset_sha256": "eacb7e364219e19d5ee796717c7b64ebed653803a5f1fd1f1016537b2d50e23c",
+  "sections": 54,
+  "llama": {
+    "model_bytes": 639150592,
+    "gpu_layers": 99,
+    "load_seconds": 5.751,
+    "usage": {
+      "peak_rss_mb": 7807.9,
+      "peak_footprint_mb": 7320.7,
+      "mean_cpu_percent": 10.0
+    },
+    "inputs_sha256": "86b1123518d641832c78318bfb466b1e094017a203ef16e0de7edbf77d8072b1",
+    "batch_size": 8,
+    "max_sequence_tokens": 8192,
+    "dimensions": 1024,
+    "sections_seconds": 3.063,
+    "seconds_per_section": 0.0567,
+    "change_context": {
+      "metrics": {
+        "queries": 26,
+        "recall_at_1": 0.923,
+        "recall_at_3": 1.0,
+        "recall_at_5": 1.0,
+        "mrr": 0.955
+      },
+      "by_category": {
+        "exact_reference": {
+          "queries": 10,
+          "recall_at_1": 1.0,
+          "recall_at_3": 1.0,
+          "recall_at_5": 1.0,
+          "mrr": 1.0
+        },
+        "misleading_reference": {
+          "queries": 6,
+          "recall_at_1": 0.833,
+          "recall_at_3": 1.0,
+          "recall_at_5": 1.0,
+          "mrr": 0.917
+        },
+        "semantic_only": {
+          "queries": 10,
+          "recall_at_1": 0.9,
+          "recall_at_3": 1.0,
+          "recall_at_5": 1.0,
+          "mrr": 0.933
+        }
+      },
+      "threshold_from_dev": 0.5064,
+      "abstention": {
+        "undocumented_queries": 12,
+        "false_positive_rate": 0.083,
+        "false_positive_interval": [
+          0.015,
+          0.354
+        ],
+        "abstention_rate": 0.917,
+        "documented_queries": 26,
+        "false_no_match_rate": 0.038,
+        "false_no_match_interval": [
+          0.007,
+          0.189
+        ]
+      },
+      "score_separation": 0.994,
+      "queries": [
+        {
+          "id": "ex-1",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/users.md#Creating accounts"
+          ],
+          "top_score": 0.6998,
+          "top_5": [
+            [
+              "docs/users.md#Creating accounts",
+              0.6998
+            ],
+            [
+              "docs/users.md#Roles and permissions",
+              0.4994
+            ],
+            [
+              "docs/users.md#Users",
+              0.4696
+            ],
+            [
+              "docs/orders.md#Placing orders",
+              0.3473
+            ],
+            [
+              "docs/users.md#Exporting accounts",
+              0.3128
+            ]
+          ]
+        },
+        {
+          "id": "ex-2",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/users.md#Deleting accounts"
+          ],
+          "top_score": 0.4796,
+          "top_5": [
+            [
+              "docs/users.md#Deleting accounts",
+              0.4796
+            ],
+            [
+              "docs/users.md#Users",
+              0.4011
+            ],
+            [
+              "docs/users.md#Exporting accounts",
+              0.3318
+            ],
+            [
+              "docs/storage.md#Retention",
+              0.3264
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.3065
+            ]
+          ]
+        },
+        {
+          "id": "ex-3",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/users.md#Exporting accounts"
+          ],
+          "top_score": 0.6717,
+          "top_5": [
+            [
+              "docs/users.md#Exporting accounts",
+              0.6717
+            ],
+            [
+              "docs/users.md#Users",
+              0.4654
+            ],
+            [
+              "docs/users.md#Deleting accounts",
+              0.3767
+            ],
+            [
+              "docs/storage.md#Retention",
+              0.3098
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.3092
+            ]
+          ]
+        },
+        {
+          "id": "ex-4",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/auth.md#Logging in"
+          ],
+          "top_score": 0.6266,
+          "top_5": [
+            [
+              "docs/auth.md#Logging in",
+              0.6266
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.5805
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.4206
+            ],
+            [
+              "docs/auth.md#Failed attempts",
+              0.3796
+            ],
+            [
+              "docs/auth.md#Session lifetime",
+              0.3731
+            ]
+          ]
+        },
+        {
+          "id": "ex-5",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/cache.md#Using the cache"
+          ],
+          "top_score": 0.7303,
+          "top_5": [
+            [
+              "docs/cache.md#Using the cache",
+              0.7303
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.5602
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.3376
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3356
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.3313
+            ]
+          ]
+        },
+        {
+          "id": "ex-6",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/orders.md#Placing orders"
+          ],
+          "top_score": 0.6492,
+          "top_5": [
+            [
+              "docs/orders.md#Placing orders",
+              0.6492
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.5291
+            ],
+            [
+              "docs/orders.md#Cancelling orders",
+              0.4952
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.4158
+            ],
+            [
+              "docs/billing.md#Invoices",
+              0.3901
+            ]
+          ]
+        },
+        {
+          "id": "ex-7",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/search.md#Suggestions"
+          ],
+          "top_score": 0.6918,
+          "top_5": [
+            [
+              "docs/search.md#Suggestions",
+              0.6918
+            ],
+            [
+              "docs/search.md#Search",
+              0.5177
+            ],
+            [
+              "docs/search.md#Ranking",
+              0.4479
+            ],
+            [
+              "docs/search.md#Result pages",
+              0.4303
+            ],
+            [
+              "docs/search.md#Query syntax",
+              0.4288
+            ]
+          ]
+        },
+        {
+          "id": "ex-8",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/notifications.md#Email"
+          ],
+          "top_score": 0.7489,
+          "top_5": [
+            [
+              "docs/notifications.md#Email",
+              0.7489
+            ],
+            [
+              "docs/notifications.md#Notifications",
+              0.4116
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.4048
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.4045
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.3611
+            ]
+          ]
+        },
+        {
+          "id": "ex-9",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/notifications.md#Webhooks"
+          ],
+          "top_score": 0.7508,
+          "top_5": [
+            [
+              "docs/notifications.md#Webhooks",
+              0.7508
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.4847
+            ],
+            [
+              "docs/notifications.md#Notifications",
+              0.4143
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.3369
+            ],
+            [
+              "docs/notifications.md#Email",
+              0.3353
+            ]
+          ]
+        },
+        {
+          "id": "ex-10",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/billing.md#Invoices"
+          ],
+          "top_score": 0.7608,
+          "top_5": [
+            [
+              "docs/billing.md#Invoices",
+              0.7608
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.3917
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.3657
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3649
+            ],
+            [
+              "docs/orders.md#Placing orders",
+              0.3578
+            ]
+          ]
+        },
+        {
+          "id": "se-1",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/auth.md#Session lifetime"
+          ],
+          "top_score": 0.716,
+          "top_5": [
+            [
+              "docs/auth.md#Session lifetime",
+              0.716
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.4609
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.4535
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.4368
+            ],
+            [
+              "docs/auth.md#API tokens",
+              0.434
+            ]
+          ]
+        },
+        {
+          "id": "se-2",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/auth.md#Failed attempts"
+          ],
+          "top_score": 0.7052,
+          "top_5": [
+            [
+              "docs/auth.md#Failed attempts",
+              0.7052
+            ],
+            [
+              "docs/billing.md#Payment retries",
+              0.4666
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.4287
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.4148
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.4102
+            ]
+          ]
+        },
+        {
+          "id": "se-3",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/cache.md#Expiry"
+          ],
+          "top_score": 0.5848,
+          "top_5": [
+            [
+              "docs/cache.md#Cache",
+              0.5848
+            ],
+            [
+              "docs/cache.md#Using the cache",
+              0.5483
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.4007
+            ],
+            [
+              "docs/deployment.md#CDN",
+              0.3913
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.346
+            ]
+          ]
+        },
+        {
+          "id": "se-4",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/cache.md#Eviction"
+          ],
+          "top_score": 0.7145,
+          "top_5": [
+            [
+              "docs/cache.md#Eviction",
+              0.7145
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.5729
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.4531
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.4452
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.4068
+            ]
+          ]
+        },
+        {
+          "id": "se-5",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/billing.md#Payment retries"
+          ],
+          "top_score": 0.7301,
+          "top_5": [
+            [
+              "docs/billing.md#Payment retries",
+              0.7301
+            ],
+            [
+              "docs/auth.md#Failed attempts",
+              0.5064
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.412
+            ],
+            [
+              "docs/billing.md#Refunds",
+              0.3808
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.3796
+            ]
+          ]
+        },
+        {
+          "id": "se-6",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/billing.md#Taxes"
+          ],
+          "top_score": 0.6132,
+          "top_5": [
+            [
+              "docs/billing.md#Taxes",
+              0.6132
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.4219
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.2944
+            ],
+            [
+              "docs/billing.md#Currency",
+              0.2907
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.2663
+            ]
+          ]
+        },
+        {
+          "id": "se-7",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/orders.md#Order history"
+          ],
+          "top_score": 0.6954,
+          "top_5": [
+            [
+              "docs/orders.md#Order history",
+              0.6954
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.5261
+            ],
+            [
+              "docs/orders.md#Placing orders",
+              0.4701
+            ],
+            [
+              "docs/search.md#Ranking",
+              0.4069
+            ],
+            [
+              "docs/notifications.md#Daily summaries",
+              0.3915
+            ]
+          ]
+        },
+        {
+          "id": "se-8",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/search.md#Result pages"
+          ],
+          "top_score": 0.6133,
+          "top_5": [
+            [
+              "docs/search.md#Result pages",
+              0.6133
+            ],
+            [
+              "docs/cache.md#Warming",
+              0.4049
+            ],
+            [
+              "docs/search.md#Search",
+              0.3878
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3781
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.3768
+            ]
+          ]
+        },
+        {
+          "id": "se-9",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/storage.md#Uploads"
+          ],
+          "top_score": 0.7078,
+          "top_5": [
+            [
+              "docs/storage.md#Uploads",
+              0.7078
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4565
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.3483
+            ],
+            [
+              "docs/users.md#Users",
+              0.3393
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.3277
+            ]
+          ]
+        },
+        {
+          "id": "se-10",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/notifications.md#Webhook delivery"
+          ],
+          "top_score": 0.6064,
+          "top_5": [
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.6064
+            ],
+            [
+              "docs/billing.md#Payment retries",
+              0.4971
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.4702
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.4175
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.3806
+            ]
+          ]
+        },
+        {
+          "id": "tr-1",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/cache.md#Using the cache"
+          ],
+          "top_score": 0.7149,
+          "top_5": [
+            [
+              "docs/cache.md#Using the cache",
+              0.7149
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.5378
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.4661
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3637
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.3339
+            ]
+          ]
+        },
+        {
+          "id": "tr-2",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/deployment.md#Scaling"
+          ],
+          "top_score": 0.5086,
+          "top_5": [
+            [
+              "docs/deployment.md#Scaling",
+              0.5086
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.372
+            ],
+            [
+              "docs/cache.md#Warming",
+              0.3653
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.3351
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.3303
+            ]
+          ]
+        },
+        {
+          "id": "tr-3",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/storage.md#Downloading"
+          ],
+          "top_score": 0.6597,
+          "top_5": [
+            [
+              "docs/storage.md#Downloading",
+              0.6597
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4945
+            ],
+            [
+              "docs/cache.md#Using the cache",
+              0.3793
+            ],
+            [
+              "docs/search.md#Search",
+              0.3201
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.3158
+            ]
+          ]
+        },
+        {
+          "id": "tr-4",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/deployment.md#Health checks"
+          ],
+          "top_score": 0.7002,
+          "top_5": [
+            [
+              "docs/deployment.md#Health checks",
+              0.7002
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.4842
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.4017
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.3991
+            ],
+            [
+              "docs/auth.md#Session lifetime",
+              0.3571
+            ]
+          ]
+        },
+        {
+          "id": "tr-5",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/orders.md#Placing orders"
+          ],
+          "top_score": 0.559,
+          "top_5": [
+            [
+              "docs/billing.md#Invoices",
+              0.559
+            ],
+            [
+              "docs/orders.md#Placing orders",
+              0.5323
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.4959
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.4487
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.372
+            ]
+          ]
+        },
+        {
+          "id": "tr-6",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/deployment.md#CDN"
+          ],
+          "top_score": 0.646,
+          "top_5": [
+            [
+              "docs/deployment.md#CDN",
+              0.646
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.5062
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.44
+            ],
+            [
+              "docs/auth.md#API tokens",
+              0.3945
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.3942
+            ]
+          ]
+        },
+        {
+          "id": "no-1",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3363,
+          "top_5": [
+            [
+              "docs/search.md#Ranking",
+              0.3363
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.2682
+            ],
+            [
+              "docs/users.md#Users",
+              0.2521
+            ],
+            [
+              "docs/search.md#Search",
+              0.249
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.2473
+            ]
+          ]
+        },
+        {
+          "id": "no-2",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3859,
+          "top_5": [
+            [
+              "docs/search.md#Result pages",
+              0.3859
+            ],
+            [
+              "docs/storage.md#Uploads",
+              0.3625
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.3105
+            ],
+            [
+              "docs/users.md#Users",
+              0.3072
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3025
+            ]
+          ]
+        },
+        {
+          "id": "no-3",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3015,
+          "top_5": [
+            [
+              "docs/deployment.md#HTTP calls",
+              0.3015
+            ],
+            [
+              "docs/search.md#Search",
+              0.2855
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.2715
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.2684
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.2471
+            ]
+          ]
+        },
+        {
+          "id": "no-4",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.2079,
+          "top_5": [
+            [
+              "docs/deployment.md#HTTP calls",
+              0.2079
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.2046
+            ],
+            [
+              "docs/cache.md#Using the cache",
+              0.1989
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.1943
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.1786
+            ]
+          ]
+        },
+        {
+          "id": "no-5",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3305,
+          "top_5": [
+            [
+              "docs/search.md#Ranking",
+              0.3305
+            ],
+            [
+              "docs/search.md#Query syntax",
+              0.2694
+            ],
+            [
+              "docs/search.md#Search",
+              0.2688
+            ],
+            [
+              "docs/users.md#Users",
+              0.2639
+            ],
+            [
+              "docs/search.md#Suggestions",
+              0.252
+            ]
+          ]
+        },
+        {
+          "id": "no-6",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.2464,
+          "top_5": [
+            [
+              "docs/deployment.md#Running tests",
+              0.2464
+            ],
+            [
+              "docs/search.md#Query syntax",
+              0.235
+            ],
+            [
+              "docs/search.md#Ranking",
+              0.2229
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.215
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.2115
+            ]
+          ]
+        },
+        {
+          "id": "no-7",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3794,
+          "top_5": [
+            [
+              "docs/billing.md#Payment retries",
+              0.3794
+            ],
+            [
+              "docs/billing.md#Invoices",
+              0.3202
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.3104
+            ],
+            [
+              "docs/billing.md#Refunds",
+              0.298
+            ],
+            [
+              "docs/billing.md#Taxes",
+              0.2688
+            ]
+          ]
+        },
+        {
+          "id": "no-8",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.4555,
+          "top_5": [
+            [
+              "docs/storage.md#Retention",
+              0.4555
+            ],
+            [
+              "docs/storage.md#Backups",
+              0.3641
+            ],
+            [
+              "docs/notifications.md#Daily summaries",
+              0.3639
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.3638
+            ],
+            [
+              "docs/orders.md#Returns",
+              0.3465
+            ]
+          ]
+        },
+        {
+          "id": "no-9",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.5508,
+          "top_5": [
+            [
+              "docs/billing.md#Payment retries",
+              0.5508
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.487
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.4782
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.4293
+            ],
+            [
+              "docs/auth.md#Session lifetime",
+              0.4174
+            ]
+          ]
+        },
+        {
+          "id": "no-10",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3107,
+          "top_5": [
+            [
+              "docs/storage.md#Storage",
+              0.3107
+            ],
+            [
+              "docs/cache.md#Warming",
+              0.2799
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.262
+            ],
+            [
+              "docs/deployment.md#Deployment",
+              0.2616
+            ],
+            [
+              "docs/users.md#Profile pictures",
+              0.2569
+            ]
+          ]
+        },
+        {
+          "id": "no-11",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.2756,
+          "top_5": [
+            [
+              "docs/search.md#Query syntax",
+              0.2756
+            ],
+            [
+              "docs/search.md#Search",
+              0.2592
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.2385
+            ],
+            [
+              "docs/notifications.md#Quiet hours",
+              0.2312
+            ],
+            [
+              "docs/cache.md#Using the cache",
+              0.2271
+            ]
+          ]
+        },
+        {
+          "id": "no-12",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.4291,
+          "top_5": [
+            [
+              "docs/auth.md#Session lifetime",
+              0.4291
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.3932
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.3294
+            ],
+            [
+              "docs/cache.md#Warming",
+              0.3105
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.3005
+            ]
+          ]
+        }
+      ],
+      "seconds_per_query": 0.0742
+    },
+    "name_only": {
+      "metrics": {
+        "queries": 26,
+        "recall_at_1": 0.731,
+        "recall_at_3": 0.846,
+        "recall_at_5": 0.885,
+        "mrr": 0.809
+      },
+      "by_category": {
+        "exact_reference": {
+          "queries": 10,
+          "recall_at_1": 1.0,
+          "recall_at_3": 1.0,
+          "recall_at_5": 1.0,
+          "mrr": 1.0
+        },
+        "misleading_reference": {
+          "queries": 6,
+          "recall_at_1": 0.167,
+          "recall_at_3": 0.5,
+          "recall_at_5": 0.5,
+          "mrr": 0.391
+        },
+        "semantic_only": {
+          "queries": 10,
+          "recall_at_1": 0.8,
+          "recall_at_3": 0.9,
+          "recall_at_5": 1.0,
+          "mrr": 0.87
+        }
+      },
+      "threshold_from_dev": 0.4482,
+      "abstention": {
+        "undocumented_queries": 12,
+        "false_positive_rate": 0.167,
+        "false_positive_interval": [
+          0.047,
+          0.448
+        ],
+        "abstention_rate": 0.833,
+        "documented_queries": 26,
+        "false_no_match_rate": 0.038,
+        "false_no_match_interval": [
+          0.007,
+          0.189
+        ]
+      },
+      "score_separation": 0.952,
+      "queries": [
+        {
+          "id": "ex-1",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/users.md#Creating accounts"
+          ],
+          "top_score": 0.6417,
+          "top_5": [
+            [
+              "docs/users.md#Creating accounts",
+              0.6417
+            ],
+            [
+              "docs/users.md#Users",
+              0.554
+            ],
+            [
+              "docs/orders.md#Placing orders",
+              0.4951
+            ],
+            [
+              "docs/users.md#Exporting accounts",
+              0.3961
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.3874
+            ]
+          ]
+        },
+        {
+          "id": "ex-2",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/users.md#Deleting accounts"
+          ],
+          "top_score": 0.53,
+          "top_5": [
+            [
+              "docs/users.md#Deleting accounts",
+              0.53
+            ],
+            [
+              "docs/users.md#Users",
+              0.4739
+            ],
+            [
+              "docs/users.md#Exporting accounts",
+              0.3842
+            ],
+            [
+              "docs/users.md#Creating accounts",
+              0.3406
+            ],
+            [
+              "docs/deployment.md#Deployment",
+              0.3265
+            ]
+          ]
+        },
+        {
+          "id": "ex-3",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/users.md#Exporting accounts"
+          ],
+          "top_score": 0.7512,
+          "top_5": [
+            [
+              "docs/users.md#Exporting accounts",
+              0.7512
+            ],
+            [
+              "docs/users.md#Users",
+              0.6241
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3653
+            ],
+            [
+              "docs/users.md#Deleting accounts",
+              0.3623
+            ],
+            [
+              "docs/users.md#Creating accounts",
+              0.3561
+            ]
+          ]
+        },
+        {
+          "id": "ex-4",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/auth.md#Logging in"
+          ],
+          "top_score": 0.7141,
+          "top_5": [
+            [
+              "docs/auth.md#Logging in",
+              0.7141
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.6249
+            ],
+            [
+              "docs/users.md#Users",
+              0.5106
+            ],
+            [
+              "docs/search.md#Search",
+              0.5073
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4441
+            ]
+          ]
+        },
+        {
+          "id": "ex-5",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/cache.md#Using the cache"
+          ],
+          "top_score": 0.7418,
+          "top_5": [
+            [
+              "docs/cache.md#Using the cache",
+              0.7418
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.6452
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.3915
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.354
+            ],
+            [
+              "docs/search.md#Search",
+              0.3464
+            ]
+          ]
+        },
+        {
+          "id": "ex-6",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/orders.md#Placing orders"
+          ],
+          "top_score": 0.8065,
+          "top_5": [
+            [
+              "docs/orders.md#Placing orders",
+              0.8065
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.6826
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.4597
+            ],
+            [
+              "docs/billing.md#Invoices",
+              0.4353
+            ],
+            [
+              "docs/orders.md#Cancelling orders",
+              0.4311
+            ]
+          ]
+        },
+        {
+          "id": "ex-7",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/search.md#Suggestions"
+          ],
+          "top_score": 0.8062,
+          "top_5": [
+            [
+              "docs/search.md#Suggestions",
+              0.8062
+            ],
+            [
+              "docs/search.md#Search",
+              0.5703
+            ],
+            [
+              "docs/search.md#Ranking",
+              0.4918
+            ],
+            [
+              "docs/users.md#Users",
+              0.464
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.4417
+            ]
+          ]
+        },
+        {
+          "id": "ex-8",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/notifications.md#Email"
+          ],
+          "top_score": 0.715,
+          "top_5": [
+            [
+              "docs/notifications.md#Email",
+              0.715
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.492
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.4858
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.447
+            ],
+            [
+              "docs/search.md#Search",
+              0.4097
+            ]
+          ]
+        },
+        {
+          "id": "ex-9",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/notifications.md#Webhooks"
+          ],
+          "top_score": 0.8387,
+          "top_5": [
+            [
+              "docs/notifications.md#Webhooks",
+              0.8387
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.6202
+            ],
+            [
+              "docs/notifications.md#Notifications",
+              0.4619
+            ],
+            [
+              "docs/deployment.md#Deployment",
+              0.4117
+            ],
+            [
+              "docs/notifications.md#Email",
+              0.4088
+            ]
+          ]
+        },
+        {
+          "id": "ex-10",
+          "split": "test",
+          "category": "exact_reference",
+          "relevant": [
+            "docs/billing.md#Invoices"
+          ],
+          "top_score": 0.8047,
+          "top_5": [
+            [
+              "docs/billing.md#Invoices",
+              0.8047
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.4408
+            ],
+            [
+              "docs/orders.md#Placing orders",
+              0.4152
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3964
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.395
+            ]
+          ]
+        },
+        {
+          "id": "se-1",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/auth.md#Session lifetime"
+          ],
+          "top_score": 0.6343,
+          "top_5": [
+            [
+              "docs/auth.md#Session lifetime",
+              0.6343
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.5378
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.4252
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.4236
+            ],
+            [
+              "docs/auth.md#API tokens",
+              0.4195
+            ]
+          ]
+        },
+        {
+          "id": "se-2",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/auth.md#Failed attempts"
+          ],
+          "top_score": 0.5196,
+          "top_5": [
+            [
+              "docs/auth.md#Failed attempts",
+              0.5196
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.4903
+            ],
+            [
+              "docs/users.md#Deleting accounts",
+              0.454
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.4152
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4057
+            ]
+          ]
+        },
+        {
+          "id": "se-3",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/cache.md#Expiry"
+          ],
+          "top_score": 0.658,
+          "top_5": [
+            [
+              "docs/cache.md#Cache",
+              0.658
+            ],
+            [
+              "docs/cache.md#Using the cache",
+              0.558
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3999
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.3727
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.3555
+            ]
+          ]
+        },
+        {
+          "id": "se-4",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/cache.md#Eviction"
+          ],
+          "top_score": 0.6606,
+          "top_5": [
+            [
+              "docs/cache.md#Eviction",
+              0.6606
+            ],
+            [
+              "docs/cache.md#Expiry",
+              0.568
+            ],
+            [
+              "docs/cache.md#Overview",
+              0.3998
+            ],
+            [
+              "docs/storage.md#Retention",
+              0.3473
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3363
+            ]
+          ]
+        },
+        {
+          "id": "se-5",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/billing.md#Payment retries"
+          ],
+          "top_score": 0.6409,
+          "top_5": [
+            [
+              "docs/billing.md#Payment retries",
+              0.6409
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.4573
+            ],
+            [
+              "docs/auth.md#Failed attempts",
+              0.4526
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.4519
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3955
+            ]
+          ]
+        },
+        {
+          "id": "se-6",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/billing.md#Taxes"
+          ],
+          "top_score": 0.5801,
+          "top_5": [
+            [
+              "docs/billing.md#Taxes",
+              0.5801
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.5121
+            ],
+            [
+              "docs/search.md#Search",
+              0.3772
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3702
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3594
+            ]
+          ]
+        },
+        {
+          "id": "se-7",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/orders.md#Order history"
+          ],
+          "top_score": 0.5965,
+          "top_5": [
+            [
+              "docs/orders.md#Orders",
+              0.5965
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.5607
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.4948
+            ],
+            [
+              "docs/search.md#Search",
+              0.4735
+            ],
+            [
+              "docs/users.md#Users",
+              0.4637
+            ]
+          ]
+        },
+        {
+          "id": "se-8",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/search.md#Result pages"
+          ],
+          "top_score": 0.5731,
+          "top_5": [
+            [
+              "docs/search.md#Result pages",
+              0.5731
+            ],
+            [
+              "docs/search.md#Search",
+              0.4321
+            ],
+            [
+              "docs/users.md#Users",
+              0.3943
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3914
+            ],
+            [
+              "docs/search.md#Ranking",
+              0.3573
+            ]
+          ]
+        },
+        {
+          "id": "se-9",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/storage.md#Uploads"
+          ],
+          "top_score": 0.7193,
+          "top_5": [
+            [
+              "docs/storage.md#Uploads",
+              0.7193
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4131
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.3771
+            ],
+            [
+              "docs/users.md#Users",
+              0.3692
+            ],
+            [
+              "docs/search.md#Search",
+              0.3469
+            ]
+          ]
+        },
+        {
+          "id": "se-10",
+          "split": "test",
+          "category": "semantic_only",
+          "relevant": [
+            "docs/notifications.md#Webhook delivery"
+          ],
+          "top_score": 0.5071,
+          "top_5": [
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.5071
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.4705
+            ],
+            [
+              "docs/billing.md#Payment retries",
+              0.3874
+            ],
+            [
+              "docs/notifications.md#Notifications",
+              0.3722
+            ],
+            [
+              "docs/notifications.md#Daily summaries",
+              0.3453
+            ]
+          ]
+        },
+        {
+          "id": "tr-1",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/cache.md#Using the cache"
+          ],
+          "top_score": 0.5486,
+          "top_5": [
+            [
+              "docs/search.md#Search",
+              0.5486
+            ],
+            [
+              "docs/users.md#Users",
+              0.5003
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4861
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.4763
+            ],
+            [
+              "docs/notifications.md#Daily summaries",
+              0.4646
+            ]
+          ]
+        },
+        {
+          "id": "tr-2",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/deployment.md#Scaling"
+          ],
+          "top_score": 0.3653,
+          "top_5": [
+            [
+              "docs/deployment.md#Deployment",
+              0.3653
+            ],
+            [
+              "docs/search.md#Search",
+              0.3591
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3562
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3363
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.3116
+            ]
+          ]
+        },
+        {
+          "id": "tr-3",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/storage.md#Downloading"
+          ],
+          "top_score": 0.5644,
+          "top_5": [
+            [
+              "docs/search.md#Search",
+              0.5644
+            ],
+            [
+              "docs/storage.md#Downloading",
+              0.5499
+            ],
+            [
+              "docs/users.md#Users",
+              0.489
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4752
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.466
+            ]
+          ]
+        },
+        {
+          "id": "tr-4",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/deployment.md#Health checks"
+          ],
+          "top_score": 0.7078,
+          "top_5": [
+            [
+              "docs/deployment.md#Health checks",
+              0.7078
+            ],
+            [
+              "docs/deployment.md#Deployment",
+              0.4278
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4195
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.4188
+            ],
+            [
+              "docs/notifications.md#Notifications",
+              0.4185
+            ]
+          ]
+        },
+        {
+          "id": "tr-5",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/orders.md#Placing orders"
+          ],
+          "top_score": 0.5068,
+          "top_5": [
+            [
+              "docs/storage.md#Storage",
+              0.5068
+            ],
+            [
+              "docs/billing.md#Invoices",
+              0.5067
+            ],
+            [
+              "docs/search.md#Search",
+              0.4068
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.3953
+            ],
+            [
+              "docs/notifications.md#Webhooks",
+              0.3812
+            ]
+          ]
+        },
+        {
+          "id": "tr-6",
+          "split": "test",
+          "category": "misleading_reference",
+          "relevant": [
+            "docs/deployment.md#CDN"
+          ],
+          "top_score": 0.6513,
+          "top_5": [
+            [
+              "docs/cache.md#Cache",
+              0.6513
+            ],
+            [
+              "docs/deployment.md#CDN",
+              0.4869
+            ],
+            [
+              "docs/cache.md#Using the cache",
+              0.4656
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.4259
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.3946
+            ]
+          ]
+        },
+        {
+          "id": "no-1",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3733,
+          "top_5": [
+            [
+              "docs/search.md#Ranking",
+              0.3733
+            ],
+            [
+              "docs/search.md#Search",
+              0.3514
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3469
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.3365
+            ],
+            [
+              "docs/search.md#Suggestions",
+              0.3332
+            ]
+          ]
+        },
+        {
+          "id": "no-2",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3613,
+          "top_5": [
+            [
+              "docs/storage.md#Storage",
+              0.3613
+            ],
+            [
+              "docs/users.md#Exporting accounts",
+              0.3574
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3462
+            ],
+            [
+              "docs/users.md#Users",
+              0.3402
+            ],
+            [
+              "docs/billing.md#Invoices",
+              0.332
+            ]
+          ]
+        },
+        {
+          "id": "no-3",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.4105,
+          "top_5": [
+            [
+              "docs/search.md#Search",
+              0.4105
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3727
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.3299
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.3295
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.3246
+            ]
+          ]
+        },
+        {
+          "id": "no-4",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.271,
+          "top_5": [
+            [
+              "docs/storage.md#Storage",
+              0.271
+            ],
+            [
+              "docs/search.md#Search",
+              0.2489
+            ],
+            [
+              "docs/deployment.md#HTTP calls",
+              0.2473
+            ],
+            [
+              "docs/orders.md#Orders",
+              0.2467
+            ],
+            [
+              "docs/users.md#Users",
+              0.2299
+            ]
+          ]
+        },
+        {
+          "id": "no-5",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.368,
+          "top_5": [
+            [
+              "docs/search.md#Ranking",
+              0.368
+            ],
+            [
+              "docs/search.md#Search",
+              0.3071
+            ],
+            [
+              "docs/search.md#Suggestions",
+              0.2857
+            ],
+            [
+              "docs/users.md#Users",
+              0.2704
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.2613
+            ]
+          ]
+        },
+        {
+          "id": "no-6",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3399,
+          "top_5": [
+            [
+              "docs/search.md#Search",
+              0.3399
+            ],
+            [
+              "docs/search.md#Suggestions",
+              0.3234
+            ],
+            [
+              "docs/search.md#Ranking",
+              0.3166
+            ],
+            [
+              "docs/deployment.md#Deployment",
+              0.3084
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.3056
+            ]
+          ]
+        },
+        {
+          "id": "no-7",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3668,
+          "top_5": [
+            [
+              "docs/billing.md#Billing",
+              0.3668
+            ],
+            [
+              "docs/billing.md#Invoices",
+              0.3492
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.3472
+            ],
+            [
+              "docs/billing.md#Payment retries",
+              0.3239
+            ],
+            [
+              "docs/search.md#Search",
+              0.3132
+            ]
+          ]
+        },
+        {
+          "id": "no-8",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.4296,
+          "top_5": [
+            [
+              "docs/notifications.md#Daily summaries",
+              0.4296
+            ],
+            [
+              "docs/orders.md#Order history",
+              0.3826
+            ],
+            [
+              "docs/storage.md#Backups",
+              0.3763
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3535
+            ],
+            [
+              "docs/users.md#Exporting accounts",
+              0.3498
+            ]
+          ]
+        },
+        {
+          "id": "no-9",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.5946,
+          "top_5": [
+            [
+              "docs/billing.md#Payment retries",
+              0.5946
+            ],
+            [
+              "docs/notifications.md#Webhook delivery",
+              0.5242
+            ],
+            [
+              "docs/auth.md#Failed attempts",
+              0.4739
+            ],
+            [
+              "docs/auth.md#Password reset",
+              0.4686
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.4618
+            ]
+          ]
+        },
+        {
+          "id": "no-10",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.3638,
+          "top_5": [
+            [
+              "docs/storage.md#Storage",
+              0.3638
+            ],
+            [
+              "docs/billing.md#Billing",
+              0.3165
+            ],
+            [
+              "docs/storage.md#Downloading",
+              0.3029
+            ],
+            [
+              "docs/deployment.md#Deployment",
+              0.2969
+            ],
+            [
+              "docs/cache.md#Warming",
+              0.2838
+            ]
+          ]
+        },
+        {
+          "id": "no-11",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.2947,
+          "top_5": [
+            [
+              "docs/cache.md#Cache",
+              0.2947
+            ],
+            [
+              "docs/search.md#Search",
+              0.2846
+            ],
+            [
+              "docs/search.md#Query syntax",
+              0.2821
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.2814
+            ],
+            [
+              "docs/deployment.md#Scaling",
+              0.28
+            ]
+          ]
+        },
+        {
+          "id": "no-12",
+          "split": "test",
+          "category": "no_documentation",
+          "relevant": [],
+          "top_score": 0.468,
+          "top_5": [
+            [
+              "docs/auth.md#Session lifetime",
+              0.468
+            ],
+            [
+              "docs/auth.md#Logging in",
+              0.444
+            ],
+            [
+              "docs/cache.md#Cache",
+              0.3512
+            ],
+            [
+              "docs/auth.md#Authentication",
+              0.3277
+            ],
+            [
+              "docs/storage.md#Storage",
+              0.3176
+            ]
+          ]
+        }
+      ],
+      "seconds_per_query": 0.0221
+    }
+  }
+}
