@@ -1,5 +1,5 @@
 from vigilant.ast_diff import ChangeType, FunctionChange, function_changes
-from vigilant.doc_matching import match_documentation
+from benchmarks.deterministic_matcher import match_documentation
 from vigilant.git_diff import changed_python_files
 from vigilant.markdown_docs import extract_sections
 

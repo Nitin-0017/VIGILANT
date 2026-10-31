@@ -1,5 +1,11 @@
 import ast
+import copy
+import io
+import re
+import textwrap
+import tokenize
 import warnings
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from enum import StrEnum
@@ -22,6 +28,7 @@ class ChangeType(StrEnum):
     RETURN_ANNOTATION_CHANGED = "return_annotation_changed"
     ASYNC_CHANGED = "async_changed"
     SIGNATURE_CHANGED = "signature_changed"
+    BODY_CHANGED = "body_changed"
 
 
 @dataclass(frozen=True)
@@ -32,6 +39,17 @@ class FunctionChange:
     detail: str
     old_signature: str | None
     new_signature: str | None
+    old_line: int | None
+    new_line: int | None
+
+
+@dataclass(frozen=True)
+class ChangedFunction:
+    path: str
+    function: str
+    changes: tuple[FunctionChange, ...]
+    old_code: str | None
+    new_code: str | None
     old_line: int | None
     new_line: int | None
 
@@ -51,6 +69,8 @@ class Function:
     returns: str | None
     is_async: bool
     line: int = field(compare=False)
+    source: str = field(compare=False)
+    fingerprint: str = field(compare=False)
 
 
 def function_changes(file: FileChange) -> list[FunctionChange]:
@@ -66,6 +86,45 @@ def function_changes(file: FileChange) -> list[FunctionChange]:
     return changes
 
 
+def changed_functions(file: FileChange) -> list[ChangedFunction]:
+    """List functions whose signature or body differs, with both versions' code."""
+    old_functions = _parse_functions(file.old_source, "base")
+    new_functions = _parse_functions(file.new_source, "target")
+
+    changed = []
+    for name in sorted(old_functions.keys() | new_functions.keys()):
+        pairs = _unmatched_pairs(
+            old_functions.get(name, []),
+            new_functions.get(name, []),
+            lambda old, new: old == new and old.fingerprint == new.fingerprint,
+        )
+        for old, new in pairs:
+            changes = _changes_between(file.path, name, old, new) or [
+                FunctionChange(
+                    file.path,
+                    name,
+                    ChangeType.BODY_CHANGED,
+                    "function body changed",
+                    old.signature,
+                    new.signature,
+                    old.line,
+                    new.line,
+                )
+            ]
+            changed.append(
+                ChangedFunction(
+                    file.path,
+                    name,
+                    tuple(changes),
+                    old.source if old else None,
+                    new.source if new else None,
+                    old.line if old else None,
+                    new.line if new else None,
+                )
+            )
+    return changed
+
+
 def _parse_functions(source: bytes | None, revision: str) -> dict[str, list[Function]]:
     if source is None:
         return {}
@@ -74,7 +133,8 @@ def _parse_functions(source: bytes | None, revision: str) -> dict[str, list[Func
         # Scanned code may use deprecated syntax; that is not VIGILANT's to report.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            _collect_functions(ast.parse(source), "", functions)
+            lines = _source_lines(source)
+            _collect_functions(ast.parse(source), "", functions, lines)
     except (SyntaxError, ValueError, RecursionError) as error:
         raise UnparsableSource(
             f"invalid Python in {revision} revision: {error}"
@@ -82,21 +142,31 @@ def _parse_functions(source: bytes | None, revision: str) -> dict[str, list[Func
     return functions
 
 
+def _source_lines(source: bytes) -> list[str]:
+    encoding, _ = tokenize.detect_encoding(io.BytesIO(source).readline)
+    return re.split(r"\r\n|\r|\n", source.decode(encoding, errors="replace"))
+
+
 def _collect_functions(
-    node: ast.AST, prefix: str, functions: dict[str, list[Function]]
+    node: ast.AST,
+    prefix: str,
+    functions: dict[str, list[Function]],
+    lines: list[str],
 ) -> None:
     for child in ast.iter_child_nodes(node):
         if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef):
             name = f"{prefix}{child.name}"
-            functions.setdefault(name, []).append(_function(child))
-            _collect_functions(child, f"{name}.<locals>.", functions)
+            functions.setdefault(name, []).append(_function(child, lines))
+            _collect_functions(child, f"{name}.<locals>.", functions, lines)
         elif isinstance(child, ast.ClassDef):
-            _collect_functions(child, f"{prefix}{child.name}.", functions)
+            _collect_functions(child, f"{prefix}{child.name}.", functions, lines)
         else:
-            _collect_functions(child, prefix, functions)
+            _collect_functions(child, prefix, functions, lines)
 
 
-def _function(node: ast.FunctionDef | ast.AsyncFunctionDef) -> Function:
+def _function(
+    node: ast.FunctionDef | ast.AsyncFunctionDef, lines: list[str]
+) -> Function:
     is_async = isinstance(node, ast.AsyncFunctionDef)
     returns = _source_text(node.returns)
     signature = (
@@ -104,7 +174,31 @@ def _function(node: ast.FunctionDef | ast.AsyncFunctionDef) -> Function:
     )
     if returns is not None:
         signature += f" -> {returns}"
-    return Function(signature, _parameters(node.args), returns, is_async, node.lineno)
+    first_line = min([node.lineno] + [d.lineno for d in node.decorator_list])
+    return Function(
+        signature,
+        _parameters(node.args),
+        returns,
+        is_async,
+        node.lineno,
+        textwrap.dedent("\n".join(lines[first_line - 1 : node.end_lineno])),
+        _fingerprint(node),
+    )
+
+
+class _NestedFunctionRemover(ast.NodeTransformer):
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        return None
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        return None
+
+
+def _fingerprint(node: ast.FunctionDef | ast.AsyncFunctionDef) -> str:
+    """Describe a function's own code, so a nested change only reports the inner one."""
+    own_code = copy.deepcopy(node)
+    _NestedFunctionRemover().generic_visit(own_code)
+    return ast.dump(own_code)
 
 
 def _parameters(args: ast.arguments) -> tuple[Parameter, ...]:
@@ -141,38 +235,55 @@ def _compare_definitions(
     old_definitions: list[Function],
     new_definitions: list[Function],
 ) -> list[FunctionChange]:
+    changes = []
+    pairs = _unmatched_pairs(
+        old_definitions, new_definitions, lambda old, new: old == new
+    )
+    for old, new in pairs:
+        changes += _changes_between(path, name, old, new)
+    return changes
+
+
+def _unmatched_pairs(
+    old_definitions: list[Function],
+    new_definitions: list[Function],
+    same: Callable[[Function, Function], bool],
+) -> list[tuple[Function | None, Function | None]]:
     # A name can have several definitions, such as a property getter and setter.
     # Identical ones cancel out so that the rest pair up with their closest match.
     unmatched_new = list(new_definitions)
     unmatched_old = []
     for definition in old_definitions:
-        if definition in unmatched_new:
-            unmatched_new.remove(definition)
-        else:
+        match = next((new for new in unmatched_new if same(definition, new)), None)
+        if match is None:
             unmatched_old.append(definition)
-
-    changes = []
-    for old, new in zip_longest(unmatched_old, unmatched_new):
-        if old is None:
-            differences = [(ChangeType.FUNCTION_ADDED, name)]
-        elif new is None:
-            differences = [(ChangeType.FUNCTION_REMOVED, name)]
         else:
-            differences = _signature_differences(old, new)
-        changes += [
-            FunctionChange(
-                path,
-                name,
-                change_type,
-                detail,
-                old.signature if old else None,
-                new.signature if new else None,
-                old.line if old else None,
-                new.line if new else None,
-            )
-            for change_type, detail in differences
-        ]
-    return changes
+            unmatched_new.remove(match)
+    return list(zip_longest(unmatched_old, unmatched_new))
+
+
+def _changes_between(
+    path: str, name: str, old: Function | None, new: Function | None
+) -> list[FunctionChange]:
+    if old is None:
+        differences = [(ChangeType.FUNCTION_ADDED, name)]
+    elif new is None:
+        differences = [(ChangeType.FUNCTION_REMOVED, name)]
+    else:
+        differences = _signature_differences(old, new)
+    return [
+        FunctionChange(
+            path,
+            name,
+            change_type,
+            detail,
+            old.signature if old else None,
+            new.signature if new else None,
+            old.line if old else None,
+            new.line if new else None,
+        )
+        for change_type, detail in differences
+    ]
 
 
 def _signature_differences(

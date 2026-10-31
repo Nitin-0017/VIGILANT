@@ -8,6 +8,7 @@ import argparse
 import json
 from pathlib import Path
 
+from benchmarks.deterministic_matcher import match_documentation
 from benchmarks.metrics import (
     abstention_metrics,
     approved_dataset,
@@ -22,7 +23,6 @@ from benchmarks.run_retrieval import (
     section_id,
 )
 from vigilant.ast_diff import ChangeType, FunctionChange
-from vigilant.doc_matching import match_documentation
 from vigilant.markdown_docs import Section
 
 

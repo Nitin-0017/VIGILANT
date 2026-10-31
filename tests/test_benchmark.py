@@ -11,12 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from benchmarks.local_models import (
-    ModelExecutionError,
-    llama_embeddings,
-    llama_server,
-    resource_samples,
-)
+from benchmarks.local_models import resource_samples
 from benchmarks.metrics import (
     abstention_metrics,
     approved_dataset,
@@ -46,6 +41,7 @@ from benchmarks.run_retrieval import (
     run_sentence_transformers,
     section_id,
 )
+from vigilant.local_models import ModelExecutionError, llama_embeddings, llama_server
 from vigilant.markdown_docs import extract_sections
 
 DRIFT_CASES = json.loads(DATASET.read_text())
@@ -364,7 +360,7 @@ def test_evidence_metrics_keep_detected_and_all_drift_denominators_apart():
 def test_baseline_is_separate_from_the_model_benchmarks():
     for script in ("run_reasoning.py", "run_retrieval.py", "local_models.py"):
         source = (DATASET_DIR.parent / script).read_text()
-        assert "doc_matching" not in source, script
+        assert "deterministic_matcher" not in source, script
         assert "run_baseline" not in source, script
 
     production = Path(DATASET_DIR.parent.parent / "src" / "vigilant")
