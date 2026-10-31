@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vigilant"
+version = "0.1.0"
+description = "Detect documentation drift caused by code changes."
+requires-python = ">=3.11"
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[project.scripts]
+vigilant = "vigilant.cli:main"
