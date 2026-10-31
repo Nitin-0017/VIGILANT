@@ -1,3 +1,5 @@
+import sys
+
 from vigilant.cli import main
 
-main()
+sys.exit(main())
