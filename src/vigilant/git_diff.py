@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 FILE_STATUSES = {"A": "added", "M": "modified", "D": "deleted"}
+MARKDOWN_SUFFIXES = (".md", ".markdown")
 
 
 class GitError(Exception):
@@ -49,6 +50,21 @@ def changed_python_files(repo: Path, base: str, target: str) -> list[FileChange]
         )
         changes.append(FileChange(path, status_name, old_source, new_source))
     return sorted(changes, key=lambda change: change.path)
+
+
+def markdown_files(repo: Path, revision: str) -> list[tuple[str, bytes]]:
+    """Return the path and content of every Markdown file at a revision."""
+    commit = _resolve_commit(repo, revision)
+    output = _git(repo, "ls-tree", "-r", "-z", "--full-tree", commit)
+
+    files = []
+    for entry in output.split(b"\0")[:-1]:
+        metadata, raw_path = entry.split(b"\t", 1)
+        path = os.fsdecode(raw_path)
+        is_regular_file = metadata.startswith(b"100")
+        if is_regular_file and path.lower().endswith(MARKDOWN_SUFFIXES):
+            files.append((path, _blob(repo, commit, path)))
+    return sorted(files)
 
 
 def _resolve_commit(repo: Path, revision: str) -> str:
