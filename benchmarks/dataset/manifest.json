@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "status": "approved",
+  "provenance": "Synthetic dataset and initial labels drafted by Claude Code, then reviewed by the project owner.",
+  "sha256": "eacb7e364219e19d5ee796717c7b64ebed653803a5f1fd1f1016537b2d50e23c",
+  "files": {
+    "drift_cases.json": "547b17f0e9bc26ba533ff694ba7c4144e2b5df429a79d652436b547b0aee1755",
+    "retrieval_cases.json": "1e14ab8f65be496fde4f654cea78952bc85c367fed3d41eede33f4b4453a335e",
+    "docs/auth.md": "6fe5b6172cc6f2e7d752a85fed0f3ddc3b33f5cb5b0b40df87ff7c467225ff95",
+    "docs/billing.md": "4aa1c9d2c1f6ddf5afbcef247a010796920e435a00d511ec4ebfe29d7891cece",
+    "docs/cache.md": "530f1ac4481c046741a025c12d521f1e0d0c31f9f74f1426e8727970c9f593e8",
+    "docs/deployment.md": "2089d6589e23e129afe588b209f1e6a224cc8ca4ea6edeb5783f16d0a8bd3cae",
+    "docs/notifications.md": "b47914cd3fc831ad5aad5e97bbb7b71cfac58e86f45ab0b6de392b4119413794",
+    "docs/orders.md": "d13ae42c483de9d839f23406c5c103dc6348f8f31b1b6fef807d2a0a8544604f",
+    "docs/search.md": "960eb48b789bb7c7bd74434e23836b8c805a1b46f95036538dcb1bcfbd6a58b6",
+    "docs/storage.md": "c2cbfe404548530dd8f8620993770c5cad129edb6d7b76c39ad20931c5814706",
+    "docs/users.md": "f974963ea7a1fc482f0e6c648585e32343e6b3bfdd80033ed191b05de0d8f0c8"
+  }
+}
