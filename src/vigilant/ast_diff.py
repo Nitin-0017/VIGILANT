@@ -52,6 +52,10 @@ class ChangedFunction:
     new_code: str | None
     old_line: int | None
     new_line: int | None
+    old_first_line: int | None = None
+    old_end_line: int | None = None
+    new_first_line: int | None = None
+    new_end_line: int | None = None
 
 
 @dataclass(frozen=True)
@@ -71,6 +75,8 @@ class Function:
     line: int = field(compare=False)
     source: str = field(compare=False)
     fingerprint: str = field(compare=False)
+    first_line: int = field(compare=False)
+    end_line: int = field(compare=False)
 
 
 def function_changes(file: FileChange) -> list[FunctionChange]:
@@ -120,6 +126,10 @@ def changed_functions(file: FileChange) -> list[ChangedFunction]:
                     new.source if new else None,
                     old.line if old else None,
                     new.line if new else None,
+                    old.first_line if old else None,
+                    old.end_line if old else None,
+                    new.first_line if new else None,
+                    new.end_line if new else None,
                 )
             )
     return changed
@@ -133,7 +143,7 @@ def _parse_functions(source: bytes | None, revision: str) -> dict[str, list[Func
         # Scanned code may use deprecated syntax; that is not VIGILANT's to report.
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            lines = _source_lines(source)
+            lines = source_lines(source)
             _collect_functions(ast.parse(source), "", functions, lines)
     except (SyntaxError, ValueError, RecursionError) as error:
         raise UnparsableSource(
@@ -142,7 +152,7 @@ def _parse_functions(source: bytes | None, revision: str) -> dict[str, list[Func
     return functions
 
 
-def _source_lines(source: bytes) -> list[str]:
+def source_lines(source: bytes) -> list[str]:
     encoding, _ = tokenize.detect_encoding(io.BytesIO(source).readline)
     return re.split(r"\r\n|\r|\n", source.decode(encoding, errors="replace"))
 
@@ -183,6 +193,8 @@ def _function(
         node.lineno,
         textwrap.dedent("\n".join(lines[first_line - 1 : node.end_lineno])),
         _fingerprint(node),
+        first_line,
+        node.end_lineno,
     )
 
 

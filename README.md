@@ -54,6 +54,11 @@ vigilant scan main HEAD
 If a model is missing or fails, the scan stops with an error. No other detection method
 replaces it.
 
+`--report-file PATH` also writes a JSON report, including for failed and cancelled scans,
+and `--code-path PATH` limits analysis to part of the repository. To run scans on pull
+requests through a self-hosted runner, see
+[`examples/github-actions/README.md`](examples/github-actions/README.md).
+
 `vigilant changes main HEAD` lists function signature changes with no AI involved. That
 list is structural information, not drift detection.
 
@@ -73,5 +78,6 @@ list is structural information, not drift detection.
 - **Scans take time.** Reasoning took about 10 to 30 seconds per changed function on an
   Apple M4. All documentation is embedded on every scan, which large or multilingual
   documentation sets make much slower.
-- **Locations are starting lines.** Findings give the starting line of each function and
-  documentation quote, not full line ranges.
+- **Text output shows starting lines.** Full line ranges, commit references and changed
+  lines are in `--format json`, `--report-file` and the GitHub job summary.
+- **Renames are not linked.** A renamed function appears as one removal plus one addition.

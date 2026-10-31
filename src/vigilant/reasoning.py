@@ -66,6 +66,15 @@ class DocEvidence:
     path: str
     heading: str | None
     line: int
+    end_line: int
+    text: str
+
+
+@dataclass(frozen=True)
+class CodeLocation:
+    side: str
+    line: int
+    end_line: int
     text: str
 
 
@@ -80,6 +89,7 @@ class Assessment:
     raw_response: str
     prompt_tokens: int | None
     latency_seconds: float
+    code_location: CodeLocation | None = None
 
 
 def build_messages(function: ChangedFunction, sections: list[Section]) -> list[dict]:
@@ -155,6 +165,7 @@ def validate_response(
     verdict = answer["verdict"]
 
     evidence = []
+    code_location = None
     if verdict != "needs_review":
         if not answer["doc_evidence"]:
             return review(verdict, "the model gave no documentation evidence")
@@ -167,6 +178,9 @@ def validate_response(
         code_quote = _comparable(answer["code_evidence"])
         if not code_quote or code_quote not in code:
             return review(verdict, "the code evidence is not in the changed code")
+        code_location = _locate_code(answer["code_evidence"], function)
+        if code_location is None:
+            return review(verdict, "the code evidence spans no single code version")
 
     return Assessment(
         verdict=verdict,
@@ -178,6 +192,7 @@ def validate_response(
         raw_response=text,
         prompt_tokens=prompt_tokens,
         latency_seconds=latency,
+        code_location=code_location,
     )
 
 
@@ -235,16 +250,57 @@ def _locate_quote(item: dict, sections: list[Section]) -> DocEvidence | None:
         return None
 
     lines = section.content.split("\n")
-    for end in range(1, len(lines) + 1):
-        for start in range(end - 1, -1, -1):
-            if quote in _comparable(" ".join(lines[start:end])):
-                return DocEvidence(
-                    path=section.path,
-                    heading=section.heading,
-                    line=section.start_line + start,
-                    text="\n".join(lines[start:end]).strip(),
-                )
+    window = _find_lines(lines, quote)
+    if window is None:
+        return None
+    start, end = window
+    return DocEvidence(
+        path=section.path,
+        heading=section.heading,
+        line=section.start_line + start,
+        end_line=section.start_line + end - 1,
+        text="\n".join(lines[start:end]).strip(),
+    )
+
+
+def _locate_code(quote: str, function: ChangedFunction) -> CodeLocation | None:
+    """Find a code quote in the new version, then the old, as real source lines."""
+    versions = (
+        ("head", function.new_code, function.new_first_line or function.new_line),
+        ("base", function.old_code, function.old_first_line or function.old_line),
+    )
+    for side, code, first_line in versions:
+        if code is None or first_line is None:
+            continue
+        lines = code.split("\n")
+        window = _find_lines(lines, _comparable(quote))
+        if window is not None:
+            start, end = window
+            return CodeLocation(
+                side=side,
+                line=first_line + start,
+                end_line=first_line + end - 1,
+                text="\n".join(lines[start:end]).strip(),
+            )
     return None
+
+
+def _find_lines(lines: list[str], quote: str) -> tuple[int, int] | None:
+    """Return the smallest line window containing a quote, as a slice."""
+    if quote not in _comparable(" ".join(lines)):
+        return None
+    low, high = 1, len(lines)
+    while low < high:
+        middle = (low + high) // 2
+        if quote in _comparable(" ".join(lines[:middle])):
+            high = middle
+        else:
+            low = middle + 1
+    end = low
+    start = end - 1
+    while quote not in _comparable(" ".join(lines[start:end])):
+        start -= 1
+    return start, end
 
 
 def _comparable(text: str) -> str:

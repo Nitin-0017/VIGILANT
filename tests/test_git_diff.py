@@ -4,7 +4,10 @@ from vigilant.git_diff import (
     FileChange,
     GitError,
     changed_python_files,
+    diff_line_ranges,
+    excluded_python_paths,
     markdown_files,
+    read_file,
 )
 
 
@@ -134,3 +137,75 @@ def test_markdown_files_invalid_revision_raises_clear_error(git_repo):
 
     with pytest.raises(GitError, match="unknown revision: missing"):
         markdown_files(git_repo.path, "missing")
+
+
+def test_diff_line_ranges_separate_inserted_deleted_and_modified_lines(git_repo):
+    old = "a\nb\nc\nd\ne\nf\n"
+    new = "a\nNEW\nb\nd\nE\nf\n"
+    base = git_repo.commit({"x.py": old})
+    head = git_repo.commit({"x.py": new})
+
+    old_ranges, new_ranges = diff_line_ranges(git_repo.path, base, head, "x.py")
+
+    assert old_ranges == [(3, 3), (5, 5)]
+    assert new_ranges == [(2, 2), (5, 5)]
+
+
+def test_diff_line_ranges_for_added_and_deleted_files(git_repo):
+    base = git_repo.commit({"gone.py": "a\nb\n"})
+    head = git_repo.commit({"new.py": "a\nb\nc\n"}, delete=["gone.py"])
+
+    assert diff_line_ranges(git_repo.path, base, head, "new.py") == ([], [(1, 3)])
+    assert diff_line_ranges(git_repo.path, base, head, "gone.py") == ([(1, 2)], [])
+
+
+def test_diff_line_ranges_ignore_file_content_that_looks_like_a_hunk_header(git_repo):
+    base = git_repo.commit({"x.py": "a\n"})
+    head = git_repo.commit({"x.py": "a\n@@ -90,9 +90,9 @@\n"})
+
+    assert diff_line_ranges(git_repo.path, base, head, "x.py") == ([], [(2, 2)])
+
+
+def test_diff_line_ranges_treat_special_characters_in_paths_literally(git_repo):
+    base = git_repo.commit({"a[1]*.py": "a\n", "a1b.py": "a\n"})
+    head = git_repo.commit({"a[1]*.py": "b\n", "a1b.py": "b\nc\n"})
+
+    assert diff_line_ranges(git_repo.path, base, head, "a[1]*.py") == (
+        [(1, 1)],
+        [(1, 1)],
+    )
+
+
+def test_code_paths_select_directories_and_files(git_repo):
+    base = git_repo.commit({"src/a.py": "1\n", "src/b.py": "1\n", "lib/c.py": "1\n"})
+    head = git_repo.commit({"src/a.py": "2\n", "src/b.py": "2\n", "lib/c.py": "2\n"})
+
+    def selected(*paths):
+        files = changed_python_files(git_repo.path, base, head, paths)
+        return [file.path for file in files]
+
+    assert selected("src") == ["src/a.py", "src/b.py"]
+    assert selected("src/") == ["src/a.py", "src/b.py"]
+    assert selected("src/a.py", "lib") == ["lib/c.py", "src/a.py"]
+    assert selected(".") == ["lib/c.py", "src/a.py", "src/b.py"]
+    assert selected("missing") == []
+    assert excluded_python_paths(git_repo.path, base, head, ("src",)) == ["lib/c.py"]
+    assert excluded_python_paths(git_repo.path, base, head, ()) == []
+
+
+@pytest.mark.parametrize("path", ["../other", "/etc", "src/../../x", ""])
+def test_code_paths_outside_the_repository_are_rejected(git_repo, path):
+    commit = git_repo.commit()
+
+    with pytest.raises(GitError, match="must be inside the repository"):
+        changed_python_files(git_repo.path, commit, commit, (path,))
+
+
+def test_read_file_reads_the_requested_commit_and_reports_missing_files(git_repo):
+    old = git_repo.commit({"a.md": "old\n"})
+    new = git_repo.commit({"a.md": "new\n"})
+
+    assert read_file(git_repo.path, old, "a.md") == b"old\n"
+    assert read_file(git_repo.path, new, "a.md") == b"new\n"
+    with pytest.raises(GitError):
+        read_file(git_repo.path, new, "absent.md")
