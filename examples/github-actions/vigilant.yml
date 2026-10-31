@@ -1,0 +1,60 @@
+# Run VIGILANT on a dedicated self-hosted runner. Read this folder's README.md first.
+# Use this only in a private repository. Never attach a personal runner to a public one.
+name: VIGILANT
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vigilant-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, macOS, ARM64, vigilant]
+    timeout-minutes: 30
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      CODE_PATHS: ${{ vars.VIGILANT_CODE_PATHS }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # VIGILANT_BIN comes from the runner's .env file, so a pull request cannot change it.
+      - name: Scan the pull request
+        shell: bash
+        run: |
+          set -f
+          merge_base="$(git merge-base "$BASE_SHA" "$HEAD_SHA")"
+          code_path_args=()
+          for path in $CODE_PATHS; do
+            code_path_args+=(--code-path "$path")
+          done
+          "$VIGILANT_BIN" scan "$merge_base" "$HEAD_SHA" \
+            "${code_path_args[@]}" \
+            --report-file "$RUNNER_TEMP/vigilant-report.json"
+
+      - name: Publish the job summary
+        if: always()
+        shell: bash
+        run: |
+          report="$RUNNER_TEMP/vigilant-report.json"
+          if [ -f "$report" ] && "$VIGILANT_BIN" github-summary "$report" \
+            --repository "$GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"; then
+            exit 0
+          fi
+          {
+            echo "## VIGILANT documentation drift report"
+            echo
+            echo "**The scan did not finish, so no verdicts were produced.** See the job log."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1

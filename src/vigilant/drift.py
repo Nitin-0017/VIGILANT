@@ -28,10 +28,22 @@ class ScanSettings:
 
 
 @dataclass(frozen=True)
+class SourceLocation:
+    commit: str
+    path: str
+    start_line: int
+    end_line: int
+    changed_lines: tuple[tuple[int, int], ...]
+
+
+@dataclass(frozen=True)
 class Finding:
     function: ChangedFunction
     assessment: Assessment
     retrieved: tuple[RetrievedSection, ...] = field(default=())
+    base_location: SourceLocation | None = None
+    head_location: SourceLocation | None = None
+    source_verified: bool = False
 
 
 def detect_drift(

@@ -1,5 +1,7 @@
 import argparse
 import json
+import os
+import signal
 import sys
 import unicodedata
 from collections import Counter
@@ -16,14 +18,28 @@ from vigilant.ast_diff import (
     function_changes,
 )
 from vigilant.drift import Finding, ScanSettings, detect_drift
-from vigilant.git_diff import GitError, changed_python_files, markdown_files
+from vigilant.git_diff import (
+    GitError,
+    changed_python_files,
+    excluded_python_paths,
+    markdown_files,
+    resolve_commit,
+)
+from vigilant.github_summary import render_summary
 from vigilant.local_models import ModelExecutionError
+from vigilant.locations import verify_findings
 from vigilant.markdown_docs import Section, extract_sections
 
 MODEL_NOTICE = (
     "These verdicts come from local AI models. Qwen2.5-Coder-7B-Instruct is a selected "
     "candidate, not a production-proven model, so check its evidence before acting."
 )
+
+
+class ScanCancelled(Exception):
+    def __init__(self, signal_number: int):
+        super().__init__(f"cancelled by signal {signal_number}")
+        self.signal_number = signal_number
 
 
 def main() -> int:
@@ -72,6 +88,17 @@ def main() -> int:
     scan_parser.add_argument("--gpu-layers", type=int, default=defaults.gpu_layers)
     scan_parser.add_argument("--threads", type=int, default=defaults.threads)
     scan_parser.add_argument("--format", choices=["text", "json"], default="text")
+    scan_parser.add_argument(
+        "--code-path",
+        action="append",
+        default=[],
+        help="only analyze Python files under this repository path; repeatable",
+    )
+    scan_parser.add_argument(
+        "--report-file",
+        type=Path,
+        help="also write a JSON report here, including failed and cancelled scans",
+    )
 
     changes_parser = subparsers.add_parser(
         "changes",
@@ -84,11 +111,28 @@ def main() -> int:
     )
     _add_revision_arguments(changes_parser)
 
+    summary_parser = subparsers.add_parser(
+        "github-summary",
+        help="render a scan report file as a GitHub Actions job summary",
+        description=(
+            "Print a scan report file as Markdown for a GitHub Actions job summary. "
+            "Exits with 1 if the report cannot be read."
+        ),
+    )
+    summary_parser.add_argument(
+        "report", type=Path, help="report from scan --report-file"
+    )
+    summary_parser.add_argument(
+        "--repository", required=True, help="GitHub repository, as owner/name"
+    )
+
     args = parser.parse_args()
     if args.command == "scan":
         return _scan(args)
     if args.command == "changes":
         return _changes(args.base, args.target)
+    if args.command == "github-summary":
+        return _github_summary(args.report, args.repository)
     parser.print_help()
     return 0
 
@@ -115,30 +159,83 @@ def _scan(args: argparse.Namespace) -> int:
         gpu_layers=args.gpu_layers,
         threads=args.threads,
     )
+    signal.signal(signal.SIGINT, _cancel_scan)
+    signal.signal(signal.SIGTERM, _cancel_scan)
+    repo = Path.cwd()
+    code_paths = tuple(args.code_path)
     try:
-        files = changed_python_files(Path.cwd(), args.base, args.target)
-        functions = _changed_functions(files)
-        sections = _documentation_sections(args.target)
+        base_commit = resolve_commit(repo, args.base)
+        head_commit = resolve_commit(repo, args.target)
+        files = changed_python_files(repo, base_commit, head_commit, code_paths)
+        excluded = excluded_python_paths(repo, base_commit, head_commit, code_paths)
+        functions, skipped = _changed_functions(files)
+        sections = _documentation_sections(head_commit)
         findings = detect_drift(functions, sections, settings, _print_progress)
+        findings = verify_findings(repo, base_commit, head_commit, findings)
     except (GitError, ModelExecutionError) as error:
         print(f"vigilant: error: {error}", file=sys.stderr)
-        return 1
+        return _finish_unsuccessful(args.report_file, "failed", str(error), 1)
+    except ScanCancelled as cancelled:
+        print("vigilant: scan cancelled", file=sys.stderr)
+        code = 128 + cancelled.signal_number
+        return _finish_unsuccessful(args.report_file, "cancelled", None, code)
 
+    report = _scan_report(findings, base_commit, head_commit, skipped, excluded)
+    if args.report_file and not _write_report(args.report_file, report):
+        return 1
     if args.format == "json":
-        print(json.dumps(_scan_report(findings), indent=2, default=str))
+        print(json.dumps(report, indent=2, default=str))
     else:
         _print_findings(findings)
     return 0
 
 
-def _changed_functions(files: list) -> list[ChangedFunction]:
+def _cancel_scan(signal_number: int, frame: object) -> None:
+    # Cleanup below must finish even if the runner signals again.
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
+    signal.signal(signal.SIGTERM, signal.SIG_IGN)
+    raise ScanCancelled(signal_number)
+
+
+def _finish_unsuccessful(
+    report_file: Path | None, status: str, error: str | None, code: int
+) -> int:
+    if report_file:
+        _write_report(report_file, {"status": status, "error": error, "findings": []})
+    return code
+
+
+def _write_report(path: Path, report: dict) -> bool:
+    temporary = path.with_name(f"{path.name}.tmp")
+    try:
+        temporary.write_text(json.dumps(report, indent=2, default=str) + "\n")
+        os.replace(temporary, path)
+    except OSError as error:
+        print(f"vigilant: error: cannot write report: {error}", file=sys.stderr)
+        return False
+    return True
+
+
+def _github_summary(report_file: Path, repository: str) -> int:
+    try:
+        report = json.loads(report_file.read_text())
+        print(render_summary(report, repository), end="")
+    except (OSError, ValueError, KeyError, TypeError, AttributeError) as error:
+        print(f"vigilant: error: cannot render report: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+def _changed_functions(files: list) -> tuple[list[ChangedFunction], list[dict]]:
     functions = []
+    skipped = []
     for file in files:
         try:
             functions += changed_functions(file)
         except UnparsableSource as error:
             print(f"vigilant: warning: skipped {file.path}: {error}", file=sys.stderr)
-    return functions
+            skipped.append({"path": file.path, "reason": str(error)})
+    return functions, skipped
 
 
 def _documentation_sections(revision: str) -> list[Section]:
@@ -153,8 +250,20 @@ def _print_progress(message: str) -> None:
     print(f"vigilant: {_printable(message)}", file=sys.stderr)
 
 
-def _scan_report(findings: list[Finding]) -> dict:
+def _scan_report(
+    findings: list[Finding],
+    base_commit: str,
+    head_commit: str,
+    skipped: list[dict],
+    excluded: list[str],
+) -> dict:
     return {
+        "status": "completed",
+        "error": None,
+        "base_commit": base_commit,
+        "head_commit": head_commit,
+        "skipped_files": skipped,
+        "excluded_files": excluded,
         "notice": MODEL_NOTICE,
         "summary": Counter(f.assessment.verdict for f in findings),
         "findings": [
@@ -164,6 +273,10 @@ def _scan_report(findings: list[Finding]) -> dict:
                 "old_line": f.function.old_line,
                 "new_line": f.function.new_line,
                 "changes": [change.detail for change in f.function.changes],
+                "source_verified": f.source_verified,
+                "base_location": asdict(f.base_location) if f.base_location else None,
+                "head_location": asdict(f.head_location) if f.head_location else None,
+                "documentation_commit": head_commit,
                 **asdict(f.assessment),
                 "retrieved": [
                     {

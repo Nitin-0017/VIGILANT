@@ -28,12 +28,16 @@ class Section:
     references: tuple[Reference, ...]
 
 
-def extract_sections(path: str, source: bytes) -> list[Section]:
-    """Split a Markdown file into one section per heading, plus any leading text."""
-    lines = [
+def document_lines(source: bytes) -> list[str]:
+    return [
         line.rstrip("\r")
         for line in source.decode("utf-8-sig", errors="replace").split("\n")
     ]
+
+
+def extract_sections(path: str, source: bytes) -> list[Section]:
+    """Split a Markdown file into one section per heading, plus any leading text."""
+    lines = document_lines(source)
     sections = []
     open_headings: list[tuple[int, str]] = []
     start = 1

@@ -1,3 +1,4 @@
+import http.client
 import json
 import shutil
 import socket
@@ -11,6 +12,7 @@ from pathlib import Path
 
 DEFAULT_MODEL_DIR = Path.home() / ".cache" / "vigilant" / "models"
 LOCAL_HOST = "127.0.0.1"
+SHUTDOWN_SECONDS = 5
 
 
 class ModelExecutionError(RuntimeError):
@@ -59,7 +61,11 @@ def llama_server(
         }
     finally:
         process.terminate()
-        process.wait(timeout=30)
+        try:
+            process.wait(timeout=SHUTDOWN_SECONDS)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
 
 
 def post_json(url: str, payload: dict, timeout: float = 600) -> dict:
@@ -78,7 +84,7 @@ def post_json(url: str, payload: dict, timeout: float = 600) -> dict:
         raise ModelExecutionError(
             f"inference request failed: {error}: {body}"
         ) from error
-    except (OSError, json.JSONDecodeError) as error:
+    except (OSError, ValueError, http.client.HTTPException) as error:
         raise ModelExecutionError(f"inference request failed: {error}") from error
 
 

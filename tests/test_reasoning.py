@@ -1,8 +1,16 @@
+import hashlib
 import json
+import time
 
 from vigilant.ast_diff import ChangedFunction
 from vigilant.markdown_docs import extract_sections
-from vigilant.reasoning import SYSTEM_PROMPT, build_messages, validate_response
+from vigilant.reasoning import (
+    SYSTEM_PROMPT,
+    VERDICTS,
+    _find_lines,
+    build_messages,
+    validate_response,
+)
 
 FUNCTION = ChangedFunction(
     path="db.py",
@@ -160,6 +168,68 @@ def test_prompt_numbers_sections_and_marks_new_functions():
     assert "Section 2 from docs/db.md" in user["content"]
 
 
+def test_classification_prompt_stays_frozen():
+    digest = hashlib.sha256(SYSTEM_PROMPT.encode()).hexdigest()
+
+    assert digest == (
+        "e92faada79520b502fc573fac34542c3d1a526b217a1aa0eda6614ef80e4c818"
+    )
+    assert VERDICTS == ("drift", "missing_documentation", "no_drift", "needs_review")
+
+
+def test_code_evidence_records_which_commit_side_and_line_it_came_from():
+    function = ChangedFunction(
+        path="db.py",
+        function="connect",
+        changes=(),
+        old_code="def connect(timeout=30):\n    pass",
+        new_code="def connect(timeout=60):\n    pass",
+        old_line=4,
+        new_line=9,
+        old_first_line=3,
+        old_end_line=5,
+        new_first_line=8,
+        new_end_line=10,
+    )
+
+    new = validate_response(
+        answer(doc=quote("First line."), code="def connect(timeout=60):"),
+        function,
+        SECTIONS,
+    )
+    old = validate_response(
+        answer(doc=quote("First line."), code="timeout=30"), function, SECTIONS
+    )
+
+    assert (new.code_location.side, new.code_location.line) == ("head", 8)
+    assert (old.code_location.side, old.code_location.line) == ("base", 3)
+
+
+def test_code_evidence_across_both_versions_needs_review():
+    quote_across = "pass def connect(timeout=60):"
+
+    result = validate_response(
+        answer(doc=quote("First line."), code=quote_across), FUNCTION, SECTIONS
+    )
+
+    assert result.verdict == "needs_review"
+    assert "no single code version" in result.review_reason
+
+
 def test_prompt_never_lets_unrelated_sections_become_no_drift():
     assert "no section is relevant" in SYSTEM_PROMPT
     assert "similar name, topic or number" in " ".join(SYSTEM_PROMPT.split())
+
+
+def test_quote_search_returns_the_smallest_window_and_scales_to_huge_functions():
+    lines = [f"    line_{number} = {number}" for number in range(5000)]
+    lines[4000] = "    target = compute("
+    lines[4001] = "        value)"
+
+    started = time.perf_counter()
+    window = _find_lines(lines, "target = compute( value)")
+    absent = _find_lines(lines, "not present anywhere")
+
+    assert window == (4000, 4002)
+    assert absent is None
+    assert time.perf_counter() - started < 5
