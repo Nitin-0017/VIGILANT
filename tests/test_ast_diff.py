@@ -4,6 +4,7 @@ from vigilant.ast_diff import (
     ChangeType,
     FunctionChange,
     UnparsableSource,
+    changed_functions,
     function_changes,
 )
 from vigilant.git_diff import FileChange
@@ -262,3 +263,92 @@ def test_scanned_code_warnings_are_not_emitted(recwarn):
     compare(None, "def f(a='\\d'): pass\n")
 
     assert len(recwarn) == 0
+
+
+def changed(old, new):
+    old_source = None if old is None else old.encode()
+    new_source = None if new is None else new.encode()
+    return changed_functions(FileChange("app.py", "modified", old_source, new_source))
+
+
+def test_body_change_is_reported_with_both_versions_of_the_code():
+    result = changed("def f():\n    return 1\n", "\n\ndef f():\n    return 2\n")
+
+    assert len(result) == 1
+    assert result[0].function == "f"
+    assert result[0].changes[0].change_type == ChangeType.BODY_CHANGED
+    assert result[0].old_code == "def f():\n    return 1"
+    assert result[0].new_code == "def f():\n    return 2"
+    assert (result[0].old_line, result[0].new_line) == (1, 3)
+
+
+def test_signature_change_keeps_its_structural_details():
+    result = changed("def f(a=1):\n    pass\n", "def f(a=2):\n    pass\n")
+
+    assert [c.change_type for c in result[0].changes] == [ChangeType.DEFAULT_CHANGED]
+
+
+def test_added_and_removed_functions_have_one_side_of_code():
+    added = changed("", "def f():\n    pass\n")[0]
+    removed = changed("def f():\n    pass\n", "")[0]
+
+    assert added.old_code is None and added.new_code == "def f():\n    pass"
+    assert removed.new_code is None and removed.old_code == "def f():\n    pass"
+
+
+def test_formatting_comments_and_moves_are_not_reported():
+    old = "def f(a,b):\n    return a+b\n\ndef g(): pass\n"
+    new = "def g(): pass\n\n# Add.\ndef f(a, b):\n    return a + b\n"
+
+    assert changed(old, new) == []
+
+
+def test_docstring_change_is_reported():
+    result = changed('def f():\n    "old"\n', 'def f():\n    "new"\n')
+
+    assert result[0].changes[0].change_type == ChangeType.BODY_CHANGED
+
+
+def test_nested_change_reports_only_the_inner_function():
+    old = "def outer():\n    def inner():\n        return 1\n    return inner\n"
+    new = "def outer():\n    def inner():\n        return 2\n    return inner\n"
+
+    result = changed(old, new)
+
+    assert [r.function for r in result] == ["outer.<locals>.inner"]
+    assert result[0].new_code == "def inner():\n    return 2"
+
+
+def test_method_source_is_dedented_and_includes_decorators():
+    old = "class C:\n    @staticmethod\n    def m():\n        return 1\n"
+    new = "class C:\n    @staticmethod\n    def m():\n        return 2\n"
+
+    result = changed(old, new)
+
+    assert result[0].function == "C.m"
+    assert result[0].new_code == "@staticmethod\ndef m():\n    return 2"
+
+
+def test_same_named_definitions_pair_after_identical_ones_cancel():
+    old = "def f(a):\n    return 1\ndef f(a, b):\n    return 2\n"
+    new = (
+        "def f(c):\n    return 3\ndef f(a):\n    return 1\ndef f(a, b):\n    return 2\n"
+    )
+
+    result = changed(old, new)
+
+    assert len(result) == 1
+    assert result[0].old_code is None
+    assert result[0].new_code == "def f(c):\n    return 3"
+
+
+def test_declared_encoding_is_used_for_source_text():
+    source = "# -*- coding: latin-1 -*-\ndef f():\n    return 'é'\n".encode("latin-1")
+
+    result = changed_functions(FileChange("a.py", "added", None, source))
+
+    assert "é" in result[0].new_code
+
+
+def test_function_changes_still_ignore_body_only_changes():
+    assert compare("def f():\n    return 1\n", "def f():\n    return 2\n") == []

@@ -282,3 +282,83 @@ model response. These are the SHA-256 hashes:
 
 The other three result files were not edited. `run_reasoning.py` still records the path it
 is given, so check a new result file for local paths before publishing it.
+
+## Production request shape and prompt development (PR 5)
+
+This work used 34 new development cases in `benchmarks/dataset/dev_cases.json`, drafted by
+Claude Code, with SHA-256
+`b1142204d8a33910b9c1b2d3b2cbfa6d185983e8215e05d3605563f26c6a18d3`. Each case has three
+sections. **These cases guided decisions, so these are not held-out results, and they do
+not establish production accuracy.** PR 4 test cases were not used. All runs used battery
+power with Low Power Mode on. Verdicts have four outcomes, and a function whose sections
+are all unrelated should be `needs_review`, so these figures are not comparable with PR 4.
+
+### One request per function, or one per section
+
+Both shapes used the same first prompt (`b7a10169...`). Each section request needs a rule to
+combine verdicts, which exists only in the benchmark.
+
+| Measure | One request per function | One request per section |
+| --- | --- | --- |
+| Accuracy | 0.735 (25/34) | 0.588 (20/34) |
+| False drift | 1 | 10 |
+| Unrelated-section cases correct | 6/7 | 1/7 |
+| Evidence correct | 21/27 | 23/27 |
+| Model calls | 34 | 102 |
+| Total inference time | 297.4 s | 664.8 s |
+| Median seconds per function | 8.87 | 18.83 |
+| Prompt tokens per call, median and maximum | 455.5 and 492 | 403.5 and 432 |
+| Total prompt tokens | 15,568 | 41,240 |
+| Largest prompt, share of 8192 context | 6.0% | 5.3% |
+
+**Decision:** production sends one request per function. It was more accurate, had far
+fewer false drift results, took less than half the time and needs no combining rule. The
+per-section shape scored 2 more evidence cases, but mainly because it called `drift` far
+more often. With the selected prompt, per-function evidence is correct on all 15 drift
+cases. Token counts come from tokenizing the prompts, because the first runs' `prompt_n`
+field counted only uncached tokens.
+
+### Prompt revisions
+
+| Version | Prompt hash | Accuracy | False drift | Correct `no_drift` | Unrelated-section cases correct | Evidence |
+| --- | --- | --- | --- | --- | --- | --- |
+| v1 | `b7a10169...` | 0.735 | 1 | 3/7 | 6/7 | 21/27 |
+| v2 | `a3b5998e...` | 0.765 | 1 | 5/7 | 5/7 | 22/27 |
+| **v3, selected** | `e92faada...` | 0.735 (0.569-0.854) | 2 | 0/7 | 6/7 | 20/27 |
+| v3 without code evidence for `no_drift`, rejected | `24af4a81...` | 0.706 | 2 | 6/7 | **0/7** | 25/27 |
+
+| Selected prompt, by expected verdict | `drift` | `missing_documentation` | `no_drift` | `needs_review` |
+| --- | --- | --- | --- | --- |
+| `drift` (15) | 15 | 0 | 0 | 0 |
+| `missing_documentation` (5) | 0 | 4 | 0 | 1 |
+| `no_drift` (7) | 1 | 0 | 0 | 6 |
+| `needs_review` (7) | 1 | 0 | 0 | 6 |
+
+**The selection puts safety above usefulness.** The rejected variant looks better on
+correct `no_drift` answers, but it turned 6 unrelated-section cases into silent `no_drift`.
+The project forbids classifying uncertainty as `no_drift`, so that requires v3 with strict
+validation. The cost is that correct `no_drift` answers also become `needs_review`, because
+the model tends to leave code evidence empty for that verdict. This validation works partly
+by coincidence, not because the model understands that a section is unrelated, and a fresh
+evaluation may not reproduce it.
+
+Accepting a literal `\n` in code evidence was also rejected: on stored responses it let
+more unrelated-section cases through as `no_drift`.
+
+### Production resource measurements
+
+| Measurement | Result |
+| --- | --- |
+| Embedding server load time | 1.06 s, warm cache |
+| Embedding server peak RSS and footprint | 1,637 MB and 1,015 MB, down from 7,321 MB footprint in PR 4 |
+| Embedding speed | 23.9 ms per section, across 54 sections |
+| Reasoning load time | 1.82 s, warm cache |
+| Reasoning peak RSS and footprint | 5,062 MB and 662 MB |
+| Reasoning median and maximum per function | 9.58 s and 12.64 s |
+
+Memory figures do not reliably capture Metal or memory-mapped allocations.
+
+### Still required
+
+The fresh held-out evaluation has not run, because its test cases should not be written by
+the author of these prompts. Nothing here shows improved accuracy over PR 4.
