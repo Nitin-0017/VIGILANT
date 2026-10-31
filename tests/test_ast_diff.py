@@ -352,3 +352,13 @@ def test_declared_encoding_is_used_for_source_text():
 
 def test_function_changes_still_ignore_body_only_changes():
     assert compare("def f():\n    return 1\n", "def f():\n    return 2\n") == []
+
+
+def test_changed_function_records_its_full_line_range_in_both_versions():
+    old = "x = 1\n\n\n@decorator\ndef f():\n    return 1\n"
+    new = "x = 1\ny = 2\n\n\n@decorator\ndef f():\n    a = 2\n    return a\n"
+
+    result = changed(old, new)[0]
+
+    assert (result.old_first_line, result.old_line, result.old_end_line) == (4, 5, 6)
+    assert (result.new_first_line, result.new_line, result.new_end_line) == (5, 6, 8)

@@ -7,8 +7,10 @@ model output. They say nothing about how accurate the real models are.
 import importlib.util
 import json
 import os
+import signal
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -444,3 +446,285 @@ def test_production_package_cannot_reach_the_deterministic_matcher():
         source = path.read_text()
         assert "deterministic_matcher" not in source, path.name
         assert "benchmarks" not in source, path.name
+
+
+def test_report_file_records_commits_locations_and_the_frozen_verdicts(
+    scan, git_repo, tmp_path
+):
+    base, target = repo_with_change(git_repo)
+    report_file = tmp_path / "report.json"
+
+    result = scan(
+        base,
+        target,
+        "--report-file",
+        str(report_file),
+        model_reply=reply(
+            "drift",
+            "`connect` times out after 30 seconds.",
+            code="def connect(timeout=60):",
+        ),
+    )
+
+    assert result.returncode == 0, result.stderr
+    report = json.loads(report_file.read_text())
+    assert report == json.loads(result.stdout)
+    assert report["status"] == "completed"
+    assert (report["base_commit"], report["head_commit"]) == (base, target)
+    finding = report["findings"][0]
+    assert finding["source_verified"] is True
+    assert finding["head_location"]["changed_lines"] == [[1, 1]]
+    assert finding["base_location"]["commit"] == base
+    assert finding["code_location"]["side"] == "head"
+    assert finding["evidence"][0]["end_line"] == 3
+
+
+def test_report_file_records_a_failed_scan(scan, git_repo, tmp_path):
+    base, target = repo_with_change(git_repo)
+    report_file = tmp_path / "report.json"
+
+    result = scan(base, target, "--report-file", str(report_file), failure="chat")
+
+    assert result.returncode == 1
+    report = json.loads(report_file.read_text())
+    assert report["status"] == "failed"
+    assert "inference request failed" in report["error"]
+    assert report["findings"] == []
+
+
+def test_truncated_server_response_is_an_explicit_error(scan, git_repo):
+    base, target = repo_with_change(git_repo)
+
+    result = scan(base, target, failure="truncated")
+
+    assert result.returncode == 1
+    assert "inference request failed" in result.stderr
+
+
+def test_unwritable_report_file_is_an_error(scan, git_repo, tmp_path):
+    base, target = repo_with_change(git_repo)
+
+    result = scan(
+        base,
+        target,
+        "--report-file",
+        str(tmp_path / "missing-directory" / "report.json"),
+        model_reply=reply("needs_review"),
+    )
+
+    assert result.returncode == 1
+    assert "cannot write report" in result.stderr
+
+
+def test_skipped_invalid_python_is_recorded_in_the_report(scan, git_repo):
+    base = git_repo.commit(
+        {
+            "bad.py": "def f():\n    pass\n",
+            "a.py": "def g(a):\n    pass\n",
+            "a.md": "# A\n",
+        }
+    )
+    target = git_repo.commit({"bad.py": "def f(:\n", "a.py": "def g(b):\n    pass\n"})
+
+    result = scan(base, target, model_reply=reply("needs_review"))
+
+    report = json.loads(result.stdout)
+    assert [item["path"] for item in report["skipped_files"]] == ["bad.py"]
+    assert "invalid Python" in report["skipped_files"][0]["reason"]
+
+
+def test_code_path_limits_analysis_and_discloses_excluded_files(scan, git_repo):
+    old = "def f(a):\n    pass\n"
+    new = "def f(b):\n    pass\n"
+    base = git_repo.commit(
+        {"src/a.py": old, "src/sub/b.py": old, "tests/t.py": old, "a.md": "# A\n"}
+    )
+    target = git_repo.commit({"src/a.py": new, "src/sub/b.py": new, "tests/t.py": new})
+
+    result = scan(base, target, "--code-path", "src", model_reply=reply("needs_review"))
+
+    report = json.loads(result.stdout)
+    assert [f["path"] for f in report["findings"]] == ["src/a.py", "src/sub/b.py"]
+    assert report["excluded_files"] == ["tests/t.py"]
+
+
+def test_code_path_outside_the_repository_is_an_error(scan, git_repo):
+    base, target = repo_with_change(git_repo)
+
+    result = scan(base, target, "--code-path", "../other")
+
+    assert result.returncode == 1
+    assert "must be inside the repository" in result.stderr
+
+
+def test_changes_on_the_base_branch_are_not_reported_when_comparing_from_merge_base(
+    scan, git_repo
+):
+    base = git_repo.commit(
+        {"a.py": "def f(a):\n    pass\n", "m.py": "x = 1\n", "a.md": "# A\n"}
+    )
+    git_repo._git("switch", "-c", "feature")
+    head = git_repo.commit({"a.py": "def f(b):\n    pass\n"})
+    git_repo._git("switch", "-")
+    git_repo.commit({"m.py": "def added_on_main():\n    pass\n"})
+    moved_base = git_repo._git("rev-parse", "HEAD").strip()
+    merge_base = git_repo._git("merge-base", moved_base, head).strip()
+
+    from_tip = json.loads(
+        scan(moved_base, head, model_reply=reply("needs_review")).stdout
+    )
+    from_merge_base = json.loads(
+        scan(merge_base, head, model_reply=reply("needs_review")).stdout
+    )
+
+    assert "added_on_main" in {f["function"] for f in from_tip["findings"]}
+    assert [f["function"] for f in from_merge_base["findings"]] == ["f"]
+    assert merge_base == base
+
+
+def test_github_summary_command_renders_a_report(scan, git_repo, tmp_path):
+    base, target = repo_with_change(git_repo)
+    report_file = tmp_path / "report.json"
+    scan(
+        base,
+        target,
+        "--report-file",
+        str(report_file),
+        model_reply=reply(
+            "drift",
+            "`connect` times out after 30 seconds.",
+            code="def connect(timeout=60):",
+        ),
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "vigilant",
+            "github-summary",
+            str(report_file),
+            "--repository",
+            "owner/repo",
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert f"blob/{target}/docs/guide.md#L3" in result.stdout
+    assert f"blob/{target}/app.py#L1" in result.stdout
+
+
+@pytest.mark.parametrize("content", [None, "not json", "[]"])
+def test_github_summary_reports_an_unreadable_report_as_an_error(tmp_path, content):
+    report_file = tmp_path / "report.json"
+    if content is not None:
+        report_file.write_text(content)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "vigilant",
+            "github-summary",
+            str(report_file),
+            "--repository",
+            "owner/repo",
+        ],
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert "cannot render report" in result.stderr
+
+
+def _process_is_running(pid):
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    # A stopped child may linger as a zombie until reaped by init.
+    state = subprocess.run(
+        ["ps", "-o", "state=", "-p", str(pid)], capture_output=True, text=True
+    ).stdout.strip()
+    return bool(state) and not state.startswith("Z")
+
+
+def _wait_for(condition, seconds):
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        if condition():
+            return True
+        time.sleep(0.05)
+    return False
+
+
+@pytest.mark.parametrize(
+    "signal_number, expected_code",
+    [(signal.SIGTERM, 143), (signal.SIGINT, 130)],
+)
+@pytest.mark.parametrize("failure", ["hang", "hang_ignoring_terminate"])
+def test_cancelling_a_scan_stops_the_model_server(
+    tmp_path, git_repo, signal_number, expected_code, failure
+):
+    executable = tmp_path / "server"
+    executable.write_text(f'#!/bin/sh\nexec "{sys.executable}" "{FAKE_SERVER}" "$@"\n')
+    executable.chmod(0o755)
+    model = tmp_path / "model.gguf"
+    model.write_text("fake")
+    pid_file = tmp_path / "server.pid"
+    report_file = tmp_path / "report.json"
+    base, target = repo_with_change(git_repo)
+
+    process = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "vigilant",
+            "scan",
+            base,
+            target,
+            "--llama-server",
+            str(executable),
+            "--coder-model",
+            str(model),
+            "--embedding-model",
+            str(model),
+            "--report-file",
+            str(report_file),
+        ],
+        cwd=git_repo.path,
+        env=os.environ
+        | {"FAKE_LLAMA_FAIL": failure, "FAKE_LLAMA_PID_FILE": str(pid_file)},
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        assert _wait_for(lambda: pid_file.exists() and pid_file.read_text(), 20)
+        server_pid = int(pid_file.read_text())
+        assert _process_is_running(server_pid)
+
+        process.send_signal(signal_number)
+
+        assert process.wait(timeout=20) == expected_code
+        assert not _process_is_running(server_pid)
+    finally:
+        process.kill()
+        process.wait()
+    report = json.loads(report_file.read_text())
+    assert report["status"] == "cancelled"
+    assert report["findings"] == []
+
+
+def test_scan_outside_a_repository_says_so(tmp_path):
+    result = subprocess.run(
+        [sys.executable, "-m", "vigilant", "scan", "HEAD~1"],
+        cwd=tmp_path,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 1
+    assert "not a git repository" in result.stderr
