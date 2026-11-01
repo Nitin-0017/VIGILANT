@@ -10,6 +10,30 @@ All inference runs on your machine. VIGILANT uses no hosted APIs or API keys.
 > production-proven model. Check the evidence behind each verdict before acting on it. See
 > [known limitations](#known-limitations).
 
+## Verified live demo
+
+See [the completed GitHub PR scan and screenshots](examples/live-pr-scan/README.md):
+code changes timeout from 30 to 90 seconds while README still says 30. The local-model
+scan reports one drift finding with exact evidence and a downloadable JSON report.
+This is a verified example, not a general accuracy measurement.
+
+## How it works
+
+```mermaid
+flowchart TD
+    A[Two Git revisions] --> B[Python AST: changed functions]
+    A --> C[Markdown sections and line numbers]
+    B --> D[Local Qwen embedding retrieval]
+    C --> D
+    D --> E[Local Qwen reasoning with quoted evidence]
+    E --> F[Validate quotes and source locations]
+    F --> G[Verdict or needs_review]
+    G --> H[CLI output, JSON and GitHub Job Summary]
+```
+
+Quote validation checks evidence against source text; it does not independently prove
+that a quote supports the conclusion. See the limitations below.
+
 ## Setup
 
 ```bash
@@ -87,3 +111,22 @@ list is structural information, not drift detection.
 
 Results and evaluation status are in
 [`FINAL_SUBMISSION_REPORT.md`](FINAL_SUBMISSION_REPORT.md).
+
+## Reproducible local fixture
+
+From this repository, create a new disposable Git fixture:
+
+```bash
+sh examples/demo/make_demo_repo.sh /tmp/vigilant-demo-final
+cd /tmp/vigilant-demo-final
+vigilant scan HEAD~1 HEAD --report-file report.json
+```
+
+Choose a destination that does not exist. The script creates two commits with four changed
+functions, including timeout drift and a behavior-preserving refactor. Placeholder calls
+in the fixture are inputs for static analysis; do not execute the fixture as an application.
+Models must already be installed. Verdicts are not hard-coded or guaranteed. The generator
+was checked structurally; this four-function fixture is distinct from the successful
+single-function GitHub demo linked above.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, tests and contribution rules.
