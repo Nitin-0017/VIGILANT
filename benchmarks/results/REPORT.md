@@ -13,7 +13,8 @@ project owner selected these candidates for VIGILANT:
 Qwen3-Embedding-0.6B retrieved documentation well on this small synthetic set.
 Qwen2.5-Coder-7B-Instruct found every drift case but also flagged most correct or
 unrelated documentation. Its classification accuracy and false-positive performance need
-improvement and a fresh held-out evaluation. No model is integrated into VIGILANT yet.
+improvement and a fresh held-out evaluation. The models were integrated into VIGILANT after
+this benchmark, in PR 5.
 
 ## Scope and conditions
 

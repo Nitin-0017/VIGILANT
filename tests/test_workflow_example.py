@@ -57,6 +57,10 @@ def test_scan_compares_from_the_merge_base():
     assert '"$VIGILANT_BIN" scan "$merge_base" "$HEAD_SHA"' in RUN_BLOCKS
 
 
+def test_scan_replaces_the_step_shell_so_cancellation_reaches_it():
+    assert 'exec "$VIGILANT_BIN" scan' in RUN_BLOCKS
+
+
 def test_vigilant_comes_from_the_runner_and_is_never_installed_from_the_pull_request():
     assert "pip install" not in WORKFLOW
     assert "$VIGILANT_BIN" in RUN_BLOCKS

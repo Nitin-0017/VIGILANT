@@ -1,0 +1,64 @@
+;; Sandbox for a supervised GitHub Actions runner on macOS. Read README.md first.
+;; sandbox-exec is deprecated and is not a hardened security boundary. These rules reduce
+;; risk under a personal account; they do not make running workflow code safe.
+;;
+;; Start the whole runner inside it, passing HOME_DIR, MODEL_DIR and RUNNER_DIR with -D.
+(version 1)
+(allow default)
+
+;; Shared locations, temporary files of other programs and system keychains.
+(deny file-read* file-write*
+      (subpath "/private/tmp")
+      (subpath "/private/var/folders")
+      (subpath "/Users/Shared")
+      (subpath "/Volumes")
+      (subpath "/Library/Keychains"))
+(allow file-read-metadata (literal "/private/tmp") (literal "/private") (literal "/tmp"))
+
+;; The personal home directory, except the model files, which stay read-only.
+(deny file-read* (subpath (param "HOME_DIR")))
+(allow file-read-metadata (literal "/Users") (literal (param "HOME_DIR")))
+(allow file-read* (subpath (param "MODEL_DIR")))
+(allow file-read-metadata
+       (literal (string-append (param "HOME_DIR") "/.cache"))
+       (literal (string-append (param "HOME_DIR") "/.cache/vigilant")))
+(deny file-write* (subpath (param "HOME_DIR")) (subpath "/opt/homebrew") (subpath "/usr/local"))
+
+;; Jobs can read the installed files but write only to the throwaway session folder, so a
+;; job cannot change this profile, the wrapper or the VIGILANT install for later sessions.
+;; The runner requires read access to every parent folder, so RUNNER_DIR must be outside home.
+(allow file-read* (subpath (param "RUNNER_DIR")))
+(deny file-write* (subpath (param "RUNNER_DIR")))
+(allow file-write* (subpath (string-append (param "RUNNER_DIR") "/session")))
+
+;; Routes to other applications, background jobs and personal data.
+(deny appleevent-send)
+(deny process-exec
+      (literal "/usr/bin/security")
+      (literal "/usr/bin/open")
+      (literal "/usr/bin/osascript")
+      (literal "/bin/launchctl")
+      (literal "/usr/bin/ssh-add")
+      (literal "/usr/bin/pbpaste")
+      (literal "/usr/bin/pbcopy")
+      (literal "/usr/sbin/screencapture")
+      (literal "/usr/bin/crontab")
+      (literal "/usr/bin/at"))
+(deny mach-lookup
+      (global-name "com.apple.securityd.xpc")
+      (global-name "com.apple.secd")
+      (global-name "com.apple.pasteboard.1")
+      (global-name "com.apple.windowserver.active")
+      (global-name "com.apple.CoreDisplay.master"))
+(deny process-info* (target others))
+
+;; Unix sockets, such as an SSH agent. Name lookups still need this one.
+(deny network-outbound (remote unix-socket))
+(allow network-outbound (remote unix-socket (path-literal "/private/var/run/mDNSResponder")))
+
+;; Not restricted, because it failed or would break the engine when tested:
+;; - com.apple.SecurityServer: the runner cannot validate TLS certificates without it. Keychain
+;;   files stay unreadable, and security gate 3 must show the fake item is still not returned.
+;; - Signals: (deny signal (target others)) did not stop a job killing an outside process.
+;; - Localhost: denying it stops the engine reaching its own model server.
+;; - Internet access: the runner needs it, and this profile cannot limit it by host.

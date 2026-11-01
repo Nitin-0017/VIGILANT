@@ -18,3 +18,7 @@ Problem 5: Automated Documentation Drift Detection
 - **Qwen3-Embedding-0.6B:** Converts code descriptions and documentation into embeddings to retrieve relevant documentation based on semantic meaning rather than exact keyword matches. We selected it because it is specifically designed for semantic search and retrieval.
 
 We use two specialized models because finding relevant documentation and reasoning about code-documentation inconsistencies are two different tasks. Together, they form the AI foundation of VIGILANT.
+
+## Final report
+
+Results, evaluation status and known limitations are in [FINAL_SUBMISSION_REPORT.md](FINAL_SUBMISSION_REPORT.md).
