@@ -1,4 +1,4 @@
-# Run VIGILANT on a dedicated self-hosted runner. Read this folder's README.md first.
+# Run VIGILANT on a sandboxed self-hosted runner. Read this folder's README.md first.
 # Use this only in a private repository. Never attach a personal runner to a public one.
 name: VIGILANT
 
@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # VIGILANT_BIN comes from the runner's .env file, so a pull request cannot change it.
+      # VIGILANT_BIN comes from the runner's .env file.
       - name: Scan the pull request
         shell: bash
         run: |
@@ -39,7 +39,8 @@ jobs:
           for path in $CODE_PATHS; do
             code_path_args+=(--code-path "$path")
           done
-          "$VIGILANT_BIN" scan "$merge_base" "$HEAD_SHA" \
+          # exec, so a cancelled job signals the scan directly and it stops its model server.
+          exec "$VIGILANT_BIN" scan "$merge_base" "$HEAD_SHA" \
             "${code_path_args[@]}" \
             --report-file "$RUNNER_TEMP/vigilant-report.json"
 

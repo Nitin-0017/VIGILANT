@@ -1,0 +1,28 @@
+# Run by hand on the default branch, so a pull request cannot supply this workflow.
+# Read this folder's README.md first. Any failed or inconclusive gate means NO-GO.
+name: VIGILANT security gates
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: [self-hosted, macOS, ARM64, vigilant]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # The canary and path settings come from the runner's .env file.
+      - name: Run the gates
+        shell: bash
+        run: |
+          set -o pipefail
+          VIGILANT_GATE_WORK_DIR="$RUNNER_TEMP" \
+            "$VIGILANT_GATE_PYTHON" security_gates.py | tee -a "$GITHUB_STEP_SUMMARY"

@@ -5,7 +5,7 @@ All inference runs on the local machine. It uses no hosted APIs or API keys, and
 network is needed only to download dependencies and weights.
 
 The benchmark is separate from `src/vigilant` and regular CI, which download no models.
-No model is integrated into VIGILANT yet. Results and the model decision are in
+Results and the model decision are in
 [`results/REPORT.md`](results/REPORT.md).
 
 | Role | Model | Status |

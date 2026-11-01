@@ -36,8 +36,9 @@ VIGILANT never downloads models for you.
 vigilant scan main HEAD
 ```
 
-`scan` runs from inside the repository. Use `--format json` for structured output, and
-`vigilant scan --help` for model paths and inference settings.
+`scan` runs from inside the repository and starts and stops `llama-server` itself, so there is
+no server to start first. Use `--format json` for structured output, and `vigilant scan --help`
+for model paths and inference settings.
 
 | Verdict | Meaning |
 | --- | --- |
@@ -69,15 +70,20 @@ list is structural information, not drift detection.
   data, and a fresh held-out evaluation has not been run yet.
 - **`needs_review` is common.** Correct `no_drift` answers usually become `needs_review`,
   so a clean result rarely appears.
+- **Evidence can be real but weak.** Validation confirms that a quote exists, not that it
+  supports the verdict. For example, a heading can be cited as evidence.
 - **Retrieval has no cut-off.** Each function always receives its top sections, even if
   none is relevant, and the model can be misled by them.
 - **Only Python functions and Markdown are analyzed.** reStructuredText documentation is
   not read, so projects that document with it will not get meaningful results.
 - **Large inputs can stop a scan.** A documentation section or changed function too large
   for the embedding context ends the scan with an error.
-- **Scans take time.** Reasoning took about 10 to 30 seconds per changed function on an
+- **Scans take time.** Reasoning took about 5 to 30 seconds per changed function on an
   Apple M4. All documentation is embedded on every scan, which large or multilingual
   documentation sets make much slower.
 - **Text output shows starting lines.** Full line ranges, commit references and changed
   lines are in `--format json`, `--report-file` and the GitHub job summary.
 - **Renames are not linked.** A renamed function appears as one removal plus one addition.
+
+Results and evaluation status are in
+[`FINAL_SUBMISSION_REPORT.md`](FINAL_SUBMISSION_REPORT.md).
