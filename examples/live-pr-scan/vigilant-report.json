@@ -1,0 +1,88 @@
+{
+  "status": "completed",
+  "error": null,
+  "base_commit": "e32fe7206ce96580219f94fc8de44b7bd835f294",
+  "head_commit": "c54feccda4ee7beead4f7cf13d2216155a3ac264",
+  "skipped_files": [],
+  "excluded_files": [],
+  "notice": "These verdicts come from local AI models. Qwen2.5-Coder-7B-Instruct is a selected candidate, not a production-proven model, so check its evidence before acting.",
+  "summary": {
+    "drift": 1
+  },
+  "findings": [
+    {
+      "path": "db.py",
+      "function": "connect",
+      "old_line": 1,
+      "new_line": 1,
+      "changes": [
+        "timeout: 30 -> 90"
+      ],
+      "source_verified": true,
+      "base_location": {
+        "commit": "e32fe7206ce96580219f94fc8de44b7bd835f294",
+        "path": "db.py",
+        "start_line": 1,
+        "end_line": 2,
+        "changed_lines": [
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "head_location": {
+        "commit": "c54feccda4ee7beead4f7cf13d2216155a3ac264",
+        "path": "db.py",
+        "start_line": 1,
+        "end_line": 2,
+        "changed_lines": [
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "documentation_commit": "c54feccda4ee7beead4f7cf13d2216155a3ac264",
+      "verdict": "drift",
+      "model_verdict": "drift",
+      "evidence": [
+        {
+          "path": "README.md",
+          "heading": "Connecting",
+          "line": 5,
+          "end_line": 5,
+          "text": "`connect` times out after 30 seconds by default."
+        }
+      ],
+      "code_evidence": "timeout=90",
+      "explanation": "The documentation states that the default timeout is 30 seconds, but the new code sets the default timeout to 90 seconds.",
+      "review_reason": null,
+      "raw_response": "{\n  \"verdict\": \"drift\",\n  \"doc_evidence\": [\n    {\n      \"section\": 1,\n      \"quote\": \"`connect` times out after 30 seconds by default.\"\n    }\n  ],\n  \"code_evidence\": \"timeout=90\",\n  \"explanation\": \"The documentation states that the default timeout is 30 seconds, but the new code sets the default timeout to 90 seconds.\"\n}",
+      "prompt_tokens": 481,
+      "latency_seconds": 22.784,
+      "code_location": {
+        "side": "head",
+        "line": 1,
+        "end_line": 1,
+        "text": "def connect(host, timeout=90):"
+      },
+      "retrieved": [
+        {
+          "path": "README.md",
+          "heading": "Connecting",
+          "start_line": 3,
+          "end_line": 5,
+          "score": 0.6802
+        },
+        {
+          "path": "README.md",
+          "heading": "DB",
+          "start_line": 1,
+          "end_line": 1,
+          "score": 0.4077
+        }
+      ]
+    }
+  ]
+}

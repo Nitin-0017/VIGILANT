@@ -1,0 +1,2 @@
+def connect(host, timeout=90):
+    return open_socket(host, timeout)

@@ -1,0 +1,79 @@
+# Run VIGILANT on a dedicated self-hosted runner. Read this folder's README.md first.
+# Use this only in a private repository. Never attach a personal runner to a public one.
+name: VIGILANT
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vigilant-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    if: >-
+      github.repository == 'mkunal983-wq/vigilant-actions-test' &&
+      github.event.repository.private == true &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.user.login == 'mkunal983-wq' &&
+      github.actor == 'mkunal983-wq'
+    runs-on: [self-hosted, macOS, ARM64, vigilant]
+    timeout-minutes: 30
+    env:
+      BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      CODE_PATHS: ${{ vars.VIGILANT_CODE_PATHS }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      # Use the pinned installation; review the entire PR before starting the runner.
+      - name: Clear previous report
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/vigilant-report.json"
+
+      - name: VIGILANT scan — local Qwen and JSON report
+        shell: bash
+        run: |
+          set -f
+          merge_base="$(git merge-base "$BASE_SHA" "$HEAD_SHA")"
+          code_path_args=()
+          for path in $CODE_PATHS; do
+            code_path_args+=(--code-path "$path")
+          done
+          # exec, so a cancelled job signals the scan directly and it stops its model server.
+          exec "$VIGILANT_BIN" scan "$merge_base" "$HEAD_SHA" \
+            "${code_path_args[@]}" \
+            --report-file "$RUNNER_TEMP/vigilant-report.json"
+
+      - name: Publish the job summary
+        if: always()
+        shell: bash
+        run: |
+          report="$RUNNER_TEMP/vigilant-report.json"
+          if [ -f "$report" ] && "$VIGILANT_BIN" github-summary "$report" \
+            --repository "$GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"; then
+            exit 0
+          fi
+          {
+            echo "## VIGILANT documentation drift report"
+            echo
+            echo "**The scan did not finish, so no verdicts were produced.** See the job log."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+
+      - name: Upload VIGILANT JSON report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: vigilant-report-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/vigilant-report.json
+          if-no-files-found: error
+          retention-days: 7
