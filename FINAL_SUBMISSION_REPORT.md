@@ -253,6 +253,4 @@ More detail is in the [README](README.md#known-limitations).
 - Support reStructuredText, more languages and linked renames.
 - Replace `sandbox-exec` with stronger isolation for shared use.
 
-## Provenance
 
-Claude Code assisted with development, the fixtures and this report, and it ran the checks above.
